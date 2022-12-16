@@ -31,6 +31,9 @@
 *.out
 *.app
 
+#Temporal pythoncache
+*.pyc
+
 build/
 install/
 log/
