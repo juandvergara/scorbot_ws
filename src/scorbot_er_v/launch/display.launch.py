@@ -17,12 +17,6 @@ def generate_launch_description():
     with open(urdf, 'r') as infp:
         robot_desc = infp.read()
 
-    # Include the Gazebo launch file, provided by the gazebo_ros package
-    gazebo = launch.actions.IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
-    )
-
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -52,44 +46,11 @@ def generate_launch_description():
         output='screen',
     )
 
-    arm_drive_spawner = Node(
-        package="controller_manager",
-        executable="spawner.py",
-        arguments=["arm_controller"],
-    )
-
-    joint_broad_spawner = Node(
-        package="controller_manager",
-        executable="spawner.py",
-        arguments=["joint_state_broadcaster"],
-    )
-    
-    joint_foward_controller = Node(
-        package="controller_manager",
-        executable="spawner.py",
-        arguments=["forward_position_controller"],
-    )
-
-    # Run the spawner node from the gazebo_ros package. The entity name doesn't really matter if you only have a single robot.
-    spawn_entity_gazebo = Node(package='gazebo_ros', executable='spawn_entity.py',
-                               arguments=['-topic', 'robot_description',
-                                          '-entity', 'my_scorbot'],
-                               output='screen')
-
     return launch.LaunchDescription([
         launch.actions.DeclareLaunchArgument(name='gui', default_value='True',
                                              description='Flag to enable joint_state_publisher_gui'),
-        
+        joint_state_publisher_gui_node,
         joint_state_publisher_node,
         robot_state_publisher_node,
         rviz_node,
-        gazebo,
-        spawn_entity_gazebo,
-        arm_drive_spawner, 
-        joint_broad_spawner
     ])
-'''
-joint_state_publisher_gui_node,
-
-
-        '''
