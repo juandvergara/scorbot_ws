@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: scorbot_er_v_moveit_config
+    relative_path: urdf/scorbot_printer.urdf
+    xacro_args: ""
+  SRDF:
+    relative_path: config/scorbot-er-v-plus.srdf
+  CONFIG:
+    author_name: Juan Vergara
+    author_email: juan_dav.vergara@uao.edu.co
+    generated_timestamp: 1668781770

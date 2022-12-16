@@ -1,0 +1,9 @@
+<library path="pico_scorbot_control">
+  <class name="pico_scorbot_control/PicoScorbotControl"
+         type="pico_scorbot_control::PicoScorbotControl"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      ros2_control hardware interface.
+    </description>
+  </class>
+</library>
