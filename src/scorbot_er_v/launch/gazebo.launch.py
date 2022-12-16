@@ -1,13 +1,14 @@
 import os
 from launch import LaunchDescription
-from launch.actions import RegisterEventHandler
+from launch.actions import RegisterEventHandler, IncludeLaunchDescription
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
-
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 from ament_index_python.packages import get_package_share_directory
+
 
 def generate_launch_description():
     my_package_dir = get_package_share_directory('scorbot_er_v')
@@ -28,47 +29,51 @@ def generate_launch_description():
             "scorbot_er_v_controllers.yaml",
         ]
     )
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare("scorbot_er_v"), "config", "view_robot.rviz"]
+
+    gazebo = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([os.path.join(
+            get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
     )
 
-    control_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[robot_description, robot_controllers],
-        remappings=[
-            (
-                "/forward_position_controller/commands",
-                "/position_commands",
-            ),
-        ],
-        output="both",
-    )
     robot_state_pub_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
         output="both",
         parameters=[robot_description],
+        arguments=[urdf]
     )
+
     rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="log",
-        arguments=["-d", rviz_config_file],
+        package='rviz2',
+        executable='rviz2',
+        arguments=[
+                '-d', os.path.join(my_package_dir, 'config', 'view_robot.rviz')],
+        name='rviz2',
+        output='screen',
     )
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+        arguments=["joint_state_broadcaster"],
     )
 
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["forward_position_controller", "-c", "/controller_manager"],
+        arguments=["arm_controller"],
     )
+
+    joint_foward_controller = Node(
+        package="controller_manager",
+        executable="spawner.py",
+        arguments=["forward_position_controller"],
+    )
+
+    spawn_entity_gazebo = Node(package='gazebo_ros', executable='spawn_entity.py',
+                               arguments=['-topic', 'robot_description',
+                                          '-entity', 'my_scorbot'],
+                               output='screen')
 
     # Delay rviz start after `joint_state_broadcaster`
     delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
@@ -87,9 +92,10 @@ def generate_launch_description():
     )
 
     nodes = [
-        control_node,
-        robot_state_pub_node,
+        gazebo,
+        spawn_entity_gazebo,
         joint_state_broadcaster_spawner,
+        robot_state_pub_node,
         delay_rviz_after_joint_state_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
     ]
