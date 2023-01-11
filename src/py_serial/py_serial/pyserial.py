@@ -50,26 +50,32 @@ class RobotFeedbackNode(Node):
     def timer_callback(self):
         data_send = "e\n"
         command = data_send.encode('utf-8')
-        self.get_logger().info(f'Sending command: {command}')
-        self.serial_master.write(command)
+        self.get_logger().info(f'Sending command to controllers: {command}')
 
+        self.serial_master.write(command)
+        while self.serial_master.in_waiting == 0:
+            pass
+        res_master = self.serial_master.read(self.serial_master.in_waiting).decode('UTF-8')
+        self.get_logger().debug(f'data: "{res_master}", bytes: {len(res_master)}')
+
+        self.serial_slave.write(command)
         while self.serial_slave.in_waiting == 0:
             pass
+        res_slave = self.serial_slave.read(self.serial_slave.in_waiting).decode('UTF-8')
+        self.get_logger().debug(f'data: "{res_slave}", bytes: {len(res_slave)}')
 
-        res = self.serial_slave.read(self.serial_slave.in_waiting).decode('UTF-8')
-        self.get_logger().debug(f'data: "{res}", bytes: {len(res)}')
+        # if res == '0' or len(res) < 30 or len(res) > (38 + 13):
+        #     self.get_logger().warn(f'Bad data: "{res}", {len(res)}')
+        #     return None
 
-        if res == '0' or len(res) < 30 or len(res) > (38 + 13):
-            self.get_logger().warn(f'Bad data: "{res}", {len(res)}')
-            return None
-
-        raw_list = res.split(',')
-        base_position = radians(float(raw_list[0]))
-        body_position = radians(float(raw_list[1]))
-        shoulder_position = radians(float(raw_list[2]))
-        elbow_position = radians(float(raw_list[3]))
-        wrist_position = radians(float(raw_list[4]))
-        wrist_yaw = radians(float(raw_list[5]))
+        raw_list_master = res_master.split(',')
+        raw_list_slave = res_slave.split(',')
+        base_position = radians(float(raw_list_master[0]))
+        body_position = radians(float(raw_list_master[1]))
+        shoulder_position = radians(float(raw_list_master[2]))
+        elbow_position = radians(float(raw_list_slave[0]))
+        wrist_position = radians(float(raw_list_slave[1]))
+        wrist_yaw = radians(float(raw_list_slave[2]))
 
         self.joint_state_position.header.stamp = self.get_clock().now().to_msg()
         self.joint_state_position.name = [
@@ -77,7 +83,7 @@ class RobotFeedbackNode(Node):
         self.joint_state_position.position = [base_position, body_position, shoulder_position, elbow_position,
                                               wrist_position, wrist_yaw]
         self.joint_states_publisher.publish(self.joint_state_position)
-        self.get_logger().warn(f'Receiving: "{raw_list[1]}", "{raw_list[2]}", "{raw_list[3]}", "{raw_list[4]}", "{raw_list[5]}"')
+        self.get_logger().warn(f'Receiving: "{raw_list_master[1]}", "{raw_list_master[2]}", "{raw_list_slave[0]}", "{raw_list_slave[1]}", "{raw_list_slave[2]}"')
 
 
     def joint_target_callback(self, request, response):
