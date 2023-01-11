@@ -1,5 +1,5 @@
 import time
-from custom_interfaces.srv import JointTarget # type: ignore
+from custom_interfaces.srv import JointTarget  # type: ignore
 import rclpy
 from math import pi, cos, sin, radians
 import serial
@@ -7,6 +7,7 @@ import serial
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from std_msgs.msg import String
+
 
 class RobotFeedbackNode(Node):
 
@@ -27,19 +28,22 @@ class RobotFeedbackNode(Node):
             'joint_states_target',
             10
         )
-        self.srv = self.create_service(JointTarget, 'joint_target', self.joint_target_callback)
+        self.srv = self.create_service(
+            JointTarget, 'joint_target', self.joint_target_callback)
 
         time.sleep(0.2)
         self.port_slave = self.get_parameter(
             'pico_port_slave').get_parameter_value().string_value
         self.port_master = self.get_parameter(
-            'pico_port_master').get_parameter_value().string_value   
+            'pico_port_master').get_parameter_value().string_value
 
         self.serial_slave = serial.Serial(self.port_slave, baudrate=115200)
         self.serial_master = serial.Serial(self.port_master, baudrate=115200)
 
-        self.get_logger().info(f'Using serial master port {self.serial_master.name}')
-        self.get_logger().info(f'Using serial slave port {self.serial_slave.name}')
+        self.get_logger().info(
+            f'Using serial master port {self.serial_master.name}')
+        self.get_logger().info(
+            f'Using serial slave port {self.serial_slave.name}')
         # set timer
         self.pub_period = 0.05  # 0.02 seconds = 50 hz = pid rate for robot
         self.pub_timer = self.create_timer(
@@ -50,19 +54,21 @@ class RobotFeedbackNode(Node):
     def timer_callback(self):
         data_send = "e\n"
         command = data_send.encode('utf-8')
-        self.get_logger().info(f'Sending command to controllers: {command}')
+        # self.get_logger().info(f'Sending command to controllers: {command}')
 
         self.serial_master.write(command)
         while self.serial_master.in_waiting == 0:
             pass
-        res_master = self.serial_master.read(self.serial_master.in_waiting).decode('UTF-8')
-        self.get_logger().debug(f'data: "{res_master}", bytes: {len(res_master)}')
+        res_master = self.serial_master.read(
+            self.serial_master.in_waiting).decode('UTF-8')
+        # self.get_logger().debug(f'data: "{res_master}", bytes: {len(res_master)}')
 
         self.serial_slave.write(command)
         while self.serial_slave.in_waiting == 0:
             pass
-        res_slave = self.serial_slave.read(self.serial_slave.in_waiting).decode('UTF-8')
-        self.get_logger().debug(f'data: "{res_slave}", bytes: {len(res_slave)}')
+        res_slave = self.serial_slave.read(
+            self.serial_slave.in_waiting).decode('UTF-8')
+        # self.get_logger().debug(f'data: "{res_slave}", bytes: {len(res_slave)}')
 
         # if res == '0' or len(res) < 30 or len(res) > (38 + 13):
         #     self.get_logger().warn(f'Bad data: "{res}", {len(res)}')
@@ -73,9 +79,9 @@ class RobotFeedbackNode(Node):
         base_position = radians(float(raw_list_master[0]))
         body_position = radians(float(raw_list_master[1]))
         shoulder_position = radians(float(raw_list_master[2]))
-        elbow_position = radians(float(raw_list_slave[0]))
-        wrist_position = radians(float(raw_list_slave[1]))
-        wrist_yaw = radians(float(raw_list_slave[2]))
+        elbow_position = radians(float(raw_list_slave[0])) - shoulder_position
+        wrist_position = radians(-float(raw_list_slave[1]) + float(raw_list_slave[2])) / 2.0
+        wrist_yaw = -radians(float(raw_list_slave[1]) + float(raw_list_slave[2])) / 2.0
 
         self.joint_state_position.header.stamp = self.get_clock().now().to_msg()
         self.joint_state_position.name = [
@@ -83,18 +89,30 @@ class RobotFeedbackNode(Node):
         self.joint_state_position.position = [base_position, body_position, shoulder_position, elbow_position,
                                               wrist_position, wrist_yaw]
         self.joint_states_publisher.publish(self.joint_state_position)
-        self.get_logger().warn(f'Receiving: "{raw_list_master[1]}", "{raw_list_master[2]}", "{raw_list_slave[0]}", "{raw_list_slave[1]}", "{raw_list_slave[2]}"')
-
+        # self.get_logger().warn(f'Receiving: "{raw_list_master[1]}", "{raw_list_master[2]}", "{raw_list_slave[0]}", "{raw_list_slave[1]}", "{raw_list_slave[2]}"')
 
     def joint_target_callback(self, request, response):
-        data_send = request.data + "\n"
+        data_send = request.data
         self.joint_state_target.data = data_send
         self.joint_states_target_publisher.publish(self.joint_state_target)
-        self.get_logger().info('Sending serial data\n')
-        print(data_send)
-        command = data_send.encode('utf-8')
-        self.get_logger().info(f'Sending command: {command}')
-        self.serial_master.write(command)
+        self.get_logger().info(f'Sending serial data {data_send}\n')
+        data_to_control = data_send.split(',')
+
+        elbow = float(data_to_control[2]) + float(data_to_control[3])
+        wrist_left = float(data_to_control[5]) - float(data_to_control[4]) - elbow
+        wrist_right = float(data_to_control[4]) + float(data_to_control[5]) + elbow
+        
+        data_master = "p " + data_to_control[0] + "," + data_to_control[1] + "," + data_to_control[2] + "\n"
+        data_slave = "p " + str(elbow) + "," + str(wrist_left) + "," + str(wrist_right) + "\n"
+
+        command_master = data_master.encode('utf-8')
+        time.sleep(0.01)
+        command_slave = data_slave.encode('utf-8')
+        self.serial_master.write(command_master)
+        self.serial_slave.write(command_slave)
+
+        # self.get_logger().info(f'Sending command to master: {command_master}')
+        # self.get_logger().info(f'Sending command to slave: {command_slave}')
         return response
 
 
