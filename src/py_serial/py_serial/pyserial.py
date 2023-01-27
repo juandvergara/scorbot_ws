@@ -76,7 +76,7 @@ class RobotFeedbackNode(Node):
 
         raw_list_master = res_master.split(',')
         raw_list_slave = res_slave.split(',')
-        base_position = radians(float(raw_list_master[0]))
+        base_position = float(raw_list_master[0]) / 100.0
         body_position = radians(float(raw_list_master[1]))
         shoulder_position = radians(float(raw_list_master[2]))
         elbow_position = radians(float(raw_list_slave[0])) - shoulder_position
