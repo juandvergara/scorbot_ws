@@ -20,89 +20,54 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+using hardware_interface::return_type;
+
 namespace pico_scorbot_control
 {
-hardware_interface::CallbackReturn PicoScorbotControl::on_init(
-  const hardware_interface::HardwareInfo & info)
-{
-  if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
-    return CallbackReturn::ERROR;
+
+  std::vector<StateInterface> PicoScorbotControl::export_state_interfaces()
+  {
+    std::vector<StateInterface> state_interfaces;
+
+    return state_interfaces;
   }
 
-  // TODO(anyone): read parameters and initialize the hardware
-  hw_states_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
-  hw_commands_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
+  std::vector<CommandInterface> PicoScorbotControl::export_command_interfaces()
+  {
+    std::vector<CommandInterface> command_interfaces;
 
-  return CallbackReturn::SUCCESS;
-}
-
-hardware_interface::CallbackReturn PicoScorbotControl::on_configure(
-  const rclcpp_lifecycle::State & /*previous_state*/)
-{
-  // TODO(anyone): prepare the robot to be ready for read calls and write calls of some interfaces
-
-  return CallbackReturn::SUCCESS;
-}
-
-std::vector<hardware_interface::StateInterface> PicoScorbotControl::export_state_interfaces()
-{
-  std::vector<hardware_interface::StateInterface> state_interfaces;
-  for (size_t i = 0; i < info_.joints.size(); ++i) {
-    state_interfaces.emplace_back(hardware_interface::StateInterface(
-      // TODO(anyone): insert correct interfaces
-      info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_states_[i]));
+    return command_interfaces;
   }
 
-  return state_interfaces;
-}
+  return_type PicoScorbotControl::start()
+  {
 
-std::vector<hardware_interface::CommandInterface> PicoScorbotControl::export_command_interfaces()
-{
-  std::vector<hardware_interface::CommandInterface> command_interfaces;
-  for (size_t i = 0; i < info_.joints.size(); ++i) {
-    command_interfaces.emplace_back(hardware_interface::CommandInterface(
-      // TODO(anyone): insert correct interfaces
-      info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_commands_[i]));
+    return return_type::OK;
   }
 
-  return command_interfaces;
-}
+  return_type PicoScorbotControl::stop()
+  {
 
-hardware_interface::CallbackReturn PicoScorbotControl::on_activate(
-  const rclcpp_lifecycle::State & /*previous_state*/)
-{
-  // TODO(anyone): prepare the robot to receive commands
+    return return_type::OK;
+  }
 
-  return CallbackReturn::SUCCESS;
-}
+  return_type PicoScorbotControl::read()
+  {
+    // TODO(anyone): read robot states
 
-hardware_interface::CallbackReturn PicoScorbotControl::on_deactivate(
-  const rclcpp_lifecycle::State & /*previous_state*/)
-{
-  // TODO(anyone): prepare the robot to stop receiving commands
+    return hardware_interface::return_type::OK;
+  }
 
-  return CallbackReturn::SUCCESS;
-}
+  return_type PicoScorbotControl::write()
+  {
+    // TODO(anyone): write robot's commands'
 
-hardware_interface::return_type PicoScorbotControl::read(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
-{
-  // TODO(anyone): read robot states
+    return hardware_interface::return_type::OK;
+  }
 
-  return hardware_interface::return_type::OK;
-}
-
-hardware_interface::return_type PicoScorbotControl::write(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
-{
-  // TODO(anyone): write robot's commands'
-
-  return hardware_interface::return_type::OK;
-}
-
-}  // namespace pico_scorbot_control
+} 
 
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
-  pico_scorbot_control::PicoScorbotControl, hardware_interface::SystemInterface)
+    pico_scorbot_control::PicoScorbotControl, hardware_interface::SystemInterface)

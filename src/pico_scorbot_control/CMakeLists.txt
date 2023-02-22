@@ -17,6 +17,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(serial REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -26,6 +27,7 @@ add_library(
   pico_scorbot_control
   SHARED
   src/pico_scorbot_control.cpp
+  src/pico_comms.cpp
 )
 target_include_directories(
   pico_scorbot_control
@@ -35,6 +37,7 @@ target_include_directories(
 ament_target_dependencies(
   pico_scorbot_control
   hardware_interface
+  serial
   rclcpp
   rclcpp_lifecycle
 )
@@ -89,6 +92,7 @@ ament_export_dependencies(
   hardware_interface
   pluginlib
   rclcpp
+  serial
   rclcpp_lifecycle
 )
 
