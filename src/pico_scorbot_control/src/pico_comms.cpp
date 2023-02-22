@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <vector>
 
-void ArduinoComms::setup(const std::string &serial_device, int32_t baud_rate, int32_t timeout_ms)
+void PicoComms::setup(const std::string &serial_device, int32_t baud_rate, int32_t timeout_ms)
 {  
     serial_conn_.setPort(serial_device);
     serial_conn_.setBaudrate(baud_rate);
@@ -13,9 +13,8 @@ void ArduinoComms::setup(const std::string &serial_device, int32_t baud_rate, in
     serial_conn_.setTimeout(tt); // This should be inline except setTimeout takes a reference and so needs a variable
     serial_conn_.open();
 }
-std::string::npos; 
 
-void ArduinoComms::readEncoderValues(int &val_1, int &val_2)
+void PicoComms::readEncoderValues(int &val_1, int &val_2)
 {
     std::string response = sendMsg("e\r");
     std::string delimiter = ",";
@@ -28,7 +27,7 @@ void ArduinoComms::readEncoderValues(int &val_1, int &val_2)
 
 }
 
-void ArduinoComms::setMotorValues(int val_1, int val_2)
+void PicoComms::setMotorValues(int val_1, int val_2)
 {
     std::stringstream ss;
     ss << "m " << val_1 << " " << val_2 << "\r";
@@ -36,7 +35,7 @@ void ArduinoComms::setMotorValues(int val_1, int val_2)
 }
 
 
-std::string ArduinoComms::sendMsg(const std::string &msg_to_send, bool print_output)
+std::string PicoComms::sendMsg(const std::string &msg_to_send, bool print_output)
 {
     serial_conn_.write(msg_to_send);
     std::string response = serial_conn_.readline(); 
