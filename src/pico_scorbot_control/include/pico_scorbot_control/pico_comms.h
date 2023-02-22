@@ -21,14 +21,13 @@ public:
     }
 
     void setup(const std::string &serial_device, int32_t baud_rate, int32_t timeout_ms);
-    void sendEmptyMsg();
-    void readEncoderValues(int &val_1, int &val_2);
-    void setMotorValues(int val_1, int val_2);
+    void readJointValues(std::vector<float> &pos_joints);
+    void setJointValues(int val_1, int val_2);
 
     bool connected() const { return serial_conn_.isOpen(); }
 
     std::string sendMsg(const std::string &msg_to_send, bool print_output = false);
-    std::vector<float> target_joints;
+    std::vector<float> actual_pos_joints;
 
 private:
     serial::Serial serial_conn_; ///< Underlying serial connection

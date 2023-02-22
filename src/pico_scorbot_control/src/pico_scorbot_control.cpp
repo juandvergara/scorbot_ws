@@ -29,12 +29,22 @@ namespace pico_scorbot_control
   {
     std::vector<StateInterface> state_interfaces;
 
+    for (size_t i = 0; i < info_.joints.size(); ++i)
+    {
+      state_interfaces.emplace_back(StateInterface(info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_states_[i]));
+    }
+
     return state_interfaces;
   }
 
   std::vector<CommandInterface> PicoScorbotControl::export_command_interfaces()
   {
     std::vector<CommandInterface> command_interfaces;
+
+    for (size_t i = 0; i < info_.joints.size(); ++i)
+    {
+      command_interfaces.emplace_back(CommandInterface(info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_commands_[i]));
+    }
 
     return command_interfaces;
   }
@@ -53,7 +63,7 @@ namespace pico_scorbot_control
 
   return_type PicoScorbotControl::read()
   {
-    // TODO(anyone): read robot states
+    PicoComms::readJointValues(hw_states_);
 
     return hardware_interface::return_type::OK;
   }
@@ -65,7 +75,7 @@ namespace pico_scorbot_control
     return hardware_interface::return_type::OK;
   }
 
-} 
+}
 
 #include "pluginlib/class_list_macros.hpp"
 

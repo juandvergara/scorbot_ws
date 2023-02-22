@@ -14,20 +14,24 @@ void PicoComms::setup(const std::string &serial_device, int32_t baud_rate, int32
     serial_conn_.open();
 }
 
-void PicoComms::readEncoderValues(int &val_1, int &val_2)
+void PicoComms::readJointValues(std::vector<float> &pos_joints)
 {
     std::string response = sendMsg("e\r");
     std::string delimiter = ",";
 
     while (response.find(delimiter) != std::string::npos) {
         std::string dato = response.substr(0, response.find(','));
-        target_joints.push_back(std::atof(dato.c_str()));
+        actual_pos_joints.push_back(std::atof(dato.c_str()));
         response.erase(0, response.find(',') + 1);
     }
 
+    for (size_t i = 0; i < actual_pos_joints.size(); i++)
+    {
+        pos_joints[i] = actual_pos_joints[i]; 
+    }
 }
 
-void PicoComms::setMotorValues(int val_1, int val_2)
+void PicoComms::setJointValues(int val_1, int val_2)
 {
     std::stringstream ss;
     ss << "m " << val_1 << " " << val_2 << "\r";

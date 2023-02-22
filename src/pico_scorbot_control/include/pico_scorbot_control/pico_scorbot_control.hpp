@@ -27,6 +27,7 @@
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "rclcpp/macros.hpp"
 #include "rclcpp_lifecycle/state.hpp"
+#include "pico_scorbot_control/pico_comms.h"
 
 using hardware_interface::return_type;
 using hardware_interface::BaseInterface;
@@ -62,8 +63,8 @@ namespace pico_scorbot_control
     return_type write() override;
 
   private:
-    std::vector<double> hw_commands_;
-    std::vector<double> hw_states_;
+    std::vector<float> hw_commands_;
+    std::vector<float> hw_states_;
   };
 
 } // namespace pico_scorbot_control
