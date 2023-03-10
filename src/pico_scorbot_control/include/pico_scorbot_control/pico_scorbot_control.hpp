@@ -62,9 +62,12 @@ namespace pico_scorbot_control
     TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
     return_type write() override;
 
+    std::vector<double> hw_states_;
+    PicoComms pico_comm;
+
   private:
-    std::vector<float> hw_commands_;
-    std::vector<float> hw_states_;
+    std::vector<double> hw_commands_;
+    // std::vector<double> hw_states_;
   };
 
 } // namespace pico_scorbot_control

@@ -1,5 +1,4 @@
 #include "pico_scorbot_control/pico_comms.h"
-// #include <ros/console.h>
 #include <rclcpp/rclcpp.hpp>
 #include <sstream>
 #include <cstdlib>
@@ -14,7 +13,7 @@ void PicoComms::setup(const std::string &serial_device, int32_t baud_rate, int32
     serial_conn_.open();
 }
 
-void PicoComms::readJointValues(std::vector<float> &pos_joints)
+void PicoComms::readJointValues(std::vector<double> &pos_joints)
 {
     std::string response = sendMsg("e\r");
     std::string delimiter = ",";
@@ -31,10 +30,15 @@ void PicoComms::readJointValues(std::vector<float> &pos_joints)
     }
 }
 
-void PicoComms::setJointValues(int val_1, int val_2)
+void PicoComms::setJointValues(std::vector<double> &target_joints)
 {
     std::stringstream ss;
-    ss << "m " << val_1 << " " << val_2 << "\r";
+    ss << "p "; 
+    for(size_t i = 0; i < target_joints.size(); i++){
+        ss << target_joints[i];
+        if(i < target_joints.size() - 1) ss << ',';
+    }
+    ss << "\n";
     sendMsg(ss.str(), false);
 }
 

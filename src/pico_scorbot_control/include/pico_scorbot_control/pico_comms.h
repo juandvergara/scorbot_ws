@@ -21,8 +21,8 @@ public:
     }
 
     void setup(const std::string &serial_device, int32_t baud_rate, int32_t timeout_ms);
-    void readJointValues(std::vector<float> &pos_joints);
-    void setJointValues(int val_1, int val_2);
+    void readJointValues(std::vector<double> &pos_joints);
+    void setJointValues(std::vector<double> &target_joints);
 
     bool connected() const { return serial_conn_.isOpen(); }
 

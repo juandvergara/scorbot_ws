@@ -63,8 +63,7 @@ namespace pico_scorbot_control
 
   return_type PicoScorbotControl::read()
   {
-    PicoComms::readJointValues(hw_states_);
-
+    pico_comm.readJointValues(hw_states_);
     return hardware_interface::return_type::OK;
   }
 
