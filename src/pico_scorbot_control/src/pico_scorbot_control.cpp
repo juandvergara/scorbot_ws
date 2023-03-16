@@ -34,6 +34,10 @@ namespace pico_scorbot_control
       state_interfaces.emplace_back(StateInterface(info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_states_[i]));
     }
 
+    for (size_t i = 0; i < info_.joints.size(); ++i)
+    {
+      state_interfaces.emplace_back(StateInterface(info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_states_[i + info_.joints.size()]));
+    }
     return state_interfaces;
   }
 
@@ -70,7 +74,7 @@ namespace pico_scorbot_control
   return_type PicoScorbotControl::write()
   {
     // TODO(anyone): write robot's commands'
-
+    pico_comm.setJointValues(hw_commands_);
     return hardware_interface::return_type::OK;
   }
 
