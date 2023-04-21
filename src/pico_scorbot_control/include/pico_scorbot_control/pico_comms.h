@@ -1,7 +1,7 @@
 #ifndef SCORBOT_PICO_COMMS_H
 #define SCORBOT_PICO_COMMS_H
 
-#include <serial/serial.h>
+#include <libserial/SerialPort.h>
 #include <cstring>
 #include <sstream>
 #include <cstdlib>

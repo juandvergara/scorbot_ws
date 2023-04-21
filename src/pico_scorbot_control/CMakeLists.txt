@@ -17,7 +17,6 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(serial REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -37,12 +36,13 @@ target_include_directories(
 ament_target_dependencies(
   pico_scorbot_control
   hardware_interface
-  serial
   rclcpp
   rclcpp_lifecycle
 )
 # prevent pluginlib from using boost
 target_compile_definitions(pico_scorbot_control PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
+
+target_link_directories(pico_scorbot_control PUBLIC serial)
 
 pluginlib_export_plugin_description_file(
   hardware_interface pico_scorbot_control.xml)
