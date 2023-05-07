@@ -80,7 +80,7 @@ class RobotFeedbackNode(Node):
         body_position = -radians(float(raw_list_master[1]))
         shoulder_position = radians(float(raw_list_master[2]))
         elbow_position = -radians(float(raw_list_slave[0])) - shoulder_position
-        wrist_position = radians(-float(raw_list_slave[1]) + float(raw_list_slave[2])) / 2.0 + radians(float(raw_list_slave[0])) # PENDING
+        wrist_position = radians(-float(raw_list_slave[1]) + float(raw_list_slave[2])) / 2.0 + radians(float(raw_list_slave[0]))
         wrist_yaw = radians(float(raw_list_slave[1]) + float(raw_list_slave[2])) / 2.0
 
         self.joint_state_position.header.stamp = self.get_clock().now().to_msg()
@@ -99,8 +99,8 @@ class RobotFeedbackNode(Node):
         data_to_control = data_send.split(',')
 
         elbow = -float(data_to_control[2]) - float(data_to_control[3])
-        wrist_left = float(data_to_control[5]) - float(data_to_control[4]) - elbow
-        wrist_right = float(data_to_control[4]) + float(data_to_control[5]) + elbow
+        wrist_left = float(data_to_control[5]) - float(data_to_control[4]) + elbow
+        wrist_right = float(data_to_control[4]) + float(data_to_control[5]) - elbow
 
         data_master = "p " + data_to_control[0] + "," + "-" + data_to_control[1] + "," + data_to_control[2] + "\n"
         data_slave = "p " + str(elbow) + "," + str(wrist_left) + "," + str(wrist_right) + "\n"
