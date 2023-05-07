@@ -20,6 +20,7 @@ forward_position_controller:
       - elbow_joint
       - wrist_joint
       - roll_wrist_joint
+      - extruder_screw_joint
     interface_name: position
 
 arm_controller:
@@ -31,6 +32,7 @@ arm_controller:
       - elbow_joint
       - wrist_joint
       - roll_wrist_joint
+      - extruder_screw_joint
     command_interfaces:
       - position
     state_interfaces:
