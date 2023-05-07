@@ -55,6 +55,8 @@ Visualization Manager:
           Value: false
         elbow_link:
           Value: false
+        extruder_link:
+          Value: true
         roll_wrist_link:
           Value: true
         shoulder_link:
@@ -65,7 +67,7 @@ Visualization Manager:
           Value: true
         wrist_link:
           Value: false
-      Marker Scale: 1
+      Marker Scale: 0.6000000238418579
       Name: TF
       Show Arrows: true
       Show Axes: true
@@ -79,7 +81,8 @@ Visualization Manager:
                   elbow_link:
                     wrist_link:
                       roll_wrist_link:
-                        {}
+                        extruder_link:
+                          {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -111,6 +114,11 @@ Visualization Manager:
           Show Trail: false
           Value: true
         elbow_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        extruder_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
