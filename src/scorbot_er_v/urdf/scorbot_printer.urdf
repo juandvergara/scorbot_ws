@@ -128,7 +128,7 @@ Stephen Brawner (brawner@gmail.com)
     <visual>
       <origin
         xyz="0 0 0"
-        rpy="3.1416 0 0" />
+        rpy="0 0 0" />
       <geometry>
         <mesh
           filename="package://scorbot_er_v/meshes/body_link.STL" />
@@ -154,13 +154,13 @@ Stephen Brawner (brawner@gmail.com)
     type="continuous">
     <origin
       xyz="0 0.354 0"
-      rpy="1.5708 -1.5708 0" />
+      rpy="-1.5708 -1.5708 0" />
     <parent
       link="slide_base_link" />
     <child
       link="body_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <dynamics damping="0.7" />
   </joint>
   <link
@@ -182,7 +182,7 @@ Stephen Brawner (brawner@gmail.com)
     <visual>
       <origin
         xyz="0 0 0"
-        rpy="3.1416 0 0" />
+        rpy="0 0 0" />
       <geometry>
         <mesh
           filename="package://scorbot_er_v/meshes/shoulder_link.STL" />
@@ -236,7 +236,7 @@ Stephen Brawner (brawner@gmail.com)
     <visual>
       <origin
         xyz="0 0 0"
-        rpy="3.1416 0 0" />
+        rpy="0 0 0" />
       <geometry>
         <mesh
           filename="package://scorbot_er_v/meshes/elbow_link.STL" />
@@ -344,7 +344,7 @@ Stephen Brawner (brawner@gmail.com)
     <visual>
       <origin
         xyz="0 0 0"
-        rpy="0 0 3.1416" />
+        rpy="0 0 0" />
       <geometry>
         <mesh
           filename="package://scorbot_er_v/meshes/roll_wrist_link.STL" />
@@ -423,8 +423,8 @@ Stephen Brawner (brawner@gmail.com)
     name="extruder_screw_joint"
     type="continuous">
     <origin
-      xyz="0 0.011037 0.126"
-      rpy="1.5708 -1.5708 0" />
+      xyz="0 -0.011037 0.126"
+      rpy="-1.5708 3.1416 0" />
     <parent
       link="roll_wrist_link" />
     <child
