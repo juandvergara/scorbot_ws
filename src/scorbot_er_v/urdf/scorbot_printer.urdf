@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by
+Stephen Brawner (brawner@gmail.com) 
      Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="scorbot-er-v-plus">
   <link name="world">
   </link>
-  <link name="base_link">
+  <link
+    name="base_link">
     <inertial>
-      <origin 
-        xyz="0 0.65 0.04" rpy="0 0 0" /> 
-      <mass value="54.14" /> 
-      <inertia 
-        ixx="13.66" ixy="0" ixz="0" 
-        iyy="0.07" iyz="0.65" 
-        izz="13.62" /> 
+      <origin
+        xyz="6.9389E-18 0.65 0.041357"
+        rpy="0 0 0" />
+      <mass
+        value="24.144" />
+      <inertia
+        ixx="3.4129"
+        ixy="-2.7635E-18"
+        ixz="1.5076E-18"
+        iyy="0.028252"
+        iyz="3.1049E-17"
+        izz="3.416" />
     </inertial>
     <visual>
       <origin
@@ -22,12 +29,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/slide_base_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/slide_base_link.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.63921 0.63921 0.63921 1" />
+          rgba="0.89804 0.91765 0.92941 1" />
       </material>
     </visual>
     <collision>
@@ -36,34 +43,42 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/slide_base_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/slide_base_link.STL" />
       </geometry>
     </collision>
   </link>
-  <joint name="world_link" type="fixed">
-    <parent link="world"/>
-    <child link="base_link"/>
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link="base_link" />
   </joint>
-  <link name="slide_base_link">
+  <link
+    name="slide_base_link">
     <inertial>
-      <origin 
-        xyz="-0.01 0.01 0" rpy="0 0 0" /> 
-      <mass value="5.77" /> 
-      <inertia  
-        ixx="0.07" ixy="0" ixz="0" 
-        iyy="0.07" iyz="0" 
-        izz="0.08" /> 
+      <origin
+        xyz="-0.012271 0.012815 0"
+        rpy="0 0 0" />
+      <mass
+        value="5.7681" />
+      <inertia
+        ixx="0.071205"
+        ixy="-0.0043325"
+        ixz="6.0569E-17"
+        iyy="0.070116"
+        iyz="2.4488E-17"
+        izz="0.08178" />
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/base_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/base_link.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.2666 0.2666 0.2666 1" />
+          rgba="0.89804 0.91765 0.92941 1" />
       </material>
     </visual>
     <collision>
@@ -72,46 +87,56 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/base_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/base_link.STL" />
       </geometry>
     </collision>
   </link>
-  <joint name="slide_base_joint"
+  <joint
+    name="slide_base_joint"
     type="prismatic">
     <origin
       xyz="0 0.17 0.096"
-      rpy="1.570796327 0 3.141592654" />
-    <parent link="base_link" />
-    <child link="slide_base_link" />
-    <axis xyz="0 0 1" />
+      rpy="1.5708 0 3.1416" />
+    <parent
+      link="base_link" />
+    <child
+      link="slide_base_link" />
+    <axis
+      xyz="0 0 1" />
     <limit
       lower="0"
-      upper="0.950"
+      upper="0.9"
       effort="0"
       velocity="0" />
   </joint>
-  <link name="body_link">
+  <link
+    name="body_link">
     <inertial>
-      <origin 
-        xyz="0 0 -0.07" rpy="0 0 0" /> 
-      <mass value="4.26" /> 
-      <inertia 
-        ixx="0.05" ixy="0" ixz="0" 
-        iyy="0.05" iyz="0" 
-        izz="0.03" /> 
+      <origin
+        xyz="-0.0024124 0.0019378 -0.070016"
+        rpy="0 0 0" />
+      <mass
+        value="4.1847" />
+      <inertia
+        ixx="0.029582"
+        ixy="0.00098745"
+        ixz="0.0042693"
+        iyy="0.027732"
+        iyz="-0.00082029"
+        izz="0.03323" />
     </inertial>
     <visual>
       <origin
         xyz="0 0 0"
-        rpy="0 0 0" />
+        rpy="3.1416 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/body_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/body_link.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.63921 0.63921 0.63921 1" />
+          rgba="0.89804 0.91765 0.92941 1" />
       </material>
     </visual>
     <collision>
@@ -120,45 +145,52 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/body_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/body_link.STL" />
       </geometry>
     </collision>
   </link>
-  <joint name="body_joint"
+  <joint
+    name="body_joint"
     type="continuous">
     <origin
       xyz="0 0.354 0"
-      rpy="-1.570796327 -1.570796327 0" />
+      rpy="1.5708 -1.5708 0" />
     <parent
       link="slide_base_link" />
     <child
       link="body_link" />
     <axis
       xyz="0 0 1" />
-    <dynamics damping="0.7"/>
+    <dynamics damping="0.7" />
   </joint>
-  <link name="shoulder_link">
+  <link
+    name="shoulder_link">
     <inertial>
-      <origin 
-        xyz="0.10 0.01 0" rpy="0 0 0" /> 
-      <mass value="2.16" /> 
-      <inertia 
-        ixx="0.01" ixy="0" ixz="0" 
-        iyy="0.05" iyz="0" 
-        izz="0.04" /> 
+      <origin
+        xyz="0.10172 0.0057759 -4.0246E-16"
+        rpy="0 0 0" />
+      <mass
+        value="2.1816" />
+      <inertia
+        ixx="0.011823"
+        ixy="-3.4979E-05"
+        ixz="1.0635E-17"
+        iyy="0.028073"
+        iyz="1.3636E-17"
+        izz="0.017919" />
     </inertial>
     <visual>
       <origin
         xyz="0 0 0"
-        rpy="0 0 0" />
+        rpy="3.1416 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/shoulder_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/shoulder_link.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+          rgba="0.64706 0.61961 0.58824 1" />
       </material>
     </visual>
     <collision>
@@ -167,45 +199,52 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/shoulder_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/shoulder_link.STL" />
       </geometry>
     </collision>
   </link>
-  <joint name="shoulder_joint"
+  <joint
+    name="shoulder_joint"
     type="continuous">
     <origin
       xyz="0.025 0 0"
-      rpy="1.570796327 0 0" />
+      rpy="1.5708 0 0" />
     <parent
       link="body_link" />
     <child
       link="shoulder_link" />
     <axis
-      xyz="0 0 1" />
-    <dynamics damping="0.7"/>
+      xyz="0 0 -1" />
+    <dynamics damping="0.7" />
   </joint>
-  <link name="elbow_link">
+  <link
+    name="elbow_link">
     <inertial>
-      <origin 
-        xyz="0.13 0 0" rpy="0 0 0" /> 
-      <mass value="1.33" /> 
-      <inertia 
-        ixx="0.01" ixy="0" ixz="0" 
-        iyy="0.04" iyz="0" 
-        izz="0.03" /> 
+      <origin
+        xyz="0.1333 0.0044924 1.249E-16"
+        rpy="0 0 0" />
+      <mass
+        value="1.3299" />
+      <inertia
+        ixx="0.0056088"
+        ixy="0.00042004"
+        ixz="-1.9107E-17"
+        iyy="0.014028"
+        iyz="5.212E-20"
+        izz="0.009294" />
     </inertial>
     <visual>
       <origin
         xyz="0 0 0"
-        rpy="0 0 0" />
+        rpy="3.1416 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/elbow_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/elbow_link.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+          rgba="0.64706 0.61961 0.58824 1" />
       </material>
     </visual>
     <collision>
@@ -214,11 +253,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/elbow_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/elbow_link.STL" />
       </geometry>
     </collision>
   </link>
-  <joint name="elbow_joint"
+  <joint
+    name="elbow_joint"
     type="continuous">
     <origin
       xyz="0.22 0 0"
@@ -228,22 +268,24 @@
     <child
       link="elbow_link" />
     <axis
-      xyz="0 0 1" />
-    <dynamics damping="0.7"/>
+      xyz="0 0 -1" />
+    <dynamics damping="0.7" />
   </joint>
-  <link name="wrist_link">
+  <link
+    name="wrist_link">
     <inertial>
-      <origin 
-        xyz="0 0 0" 
+      <origin
+        xyz="5.5511E-17 0.0016897 2.7756E-17"
         rpy="0 0 0" />
-      <mass value="0.11" />
+      <mass
+        value="0.11142" />
       <inertia
-        ixx="0.0001"
-        ixy="0.000"
-        ixz="0.000"
-        iyy="0.0001"
-        iyz="0.000"
-        izz="0.0001" />
+        ixx="0.00015149"
+        ixy="-3.4232E-21"
+        ixz="4.5808E-20"
+        iyy="0.00012081"
+        iyz="3.5338E-20"
+        izz="6.0971E-05" />
     </inertial>
     <visual>
       <origin
@@ -251,12 +293,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/wrist_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/wrist_link.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+          rgba="0.64314 0.61569 0.6 1" />
       </material>
     </visual>
     <collision>
@@ -265,73 +307,131 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/wrist_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/wrist_link.STL" />
       </geometry>
     </collision>
   </link>
-  <joint name="wrist_joint"
+  <joint
+    name="wrist_joint"
     type="continuous">
     <origin
       xyz="0.22 0 0"
-      rpy="0 0 1.5707963267949" />
+      rpy="0 0 1.5708" />
     <parent
       link="elbow_link" />
     <child
       link="wrist_link" />
     <axis
-      xyz="0 0 1" />
-    <dynamics damping="0.7"/>
+      xyz="0 0 -1" />
+    <dynamics damping="0.7" />
   </joint>
-  <link name="roll_wrist_link">
+  <link
+    name="roll_wrist_link">
     <inertial>
-      <origin 
-        xyz="0 0 0.069" 
+      <origin
+        xyz="-0.00011221 -0.0098074 0.096196"
         rpy="0 0 0" />
-      <mass value="0.208" />
+      <mass
+        value="0.3891" />
       <inertia
-        ixx="0.001"
-        ixy="0.000"
-        ixz="0.000"
-        iyy="0.001"
-        iyz="0.000"
-        izz="0.000" />
+        ixx="0.0013614"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.00015489"
+        iyz="0.0"
+        izz="0.0010547" />
     </inertial>
     <visual>
       <origin
-        xyz="0 0 0.0955"
-        rpy="0 0 0" />
+        xyz="0 0 0"
+        rpy="0 0 3.1416" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/roll_wrist_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/roll_wrist_link.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+          rgba="0.75294 0.75294 0.75294 0.5" />
       </material>
     </visual>
     <collision>
       <origin
-        xyz="0 0 0.0955"
+        xyz="0 0 0"
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes/roll_wrist_link.STL" />
+          filename="package://scorbot_er_v/meshes-extruder/roll_wrist_link.STL" />
       </geometry>
     </collision>
   </link>
-  <joint name="roll_wrist_joint"
+  <joint
+    name="roll_wrist_joint"
     type="continuous">
     <origin
       xyz="0 0 0"
-      rpy="1.5707963267949 0 0" />
+      rpy="1.5708 0 0" />
     <parent
       link="wrist_link" />
     <child
       link="roll_wrist_link" />
     <axis
       xyz="0 0 1" />
-    <dynamics damping="0.7"/>
+    <dynamics damping="0.7" />
+  </joint>
+  <link
+    name="extruder_link">
+    <inertial>
+      <origin
+        xyz="0.0001115 0 -0.004905"
+        rpy="0 0 0" />
+      <mass
+        value="0.00058199" />
+      <inertia
+        ixx="0.001"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.01"
+        iyz="0.0"
+        izz="0.01" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://scorbot_er_v/meshes-extruder/extruder_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://scorbot_er_v/meshes-extruder/extruder_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="extruder_screw_joint"
+    type="continuous">
+    <origin
+      xyz="0 0.011037 0.126"
+      rpy="1.5708 -1.5708 0" />
+    <parent
+      link="roll_wrist_link" />
+    <child
+      link="extruder_link" />
+    <axis
+      xyz="0 0 1" />
+    <dynamics damping="0.7" />
   </joint>
 
   <ros2_control name="GazeboSystem" type="system">
@@ -341,52 +441,61 @@
     </hardware>
 
     <joint name="slide_base_joint">
-      <command_interface name="position"/>
+      <command_interface name="position" />
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
-      <state_interface name="velocity"/>
+      <state_interface name="velocity" />
     </joint>
 
     <joint name="body_joint">
-      <command_interface name="position"/>
+      <command_interface name="position" />
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
-      <state_interface name="velocity"/>
+      <state_interface name="velocity" />
     </joint>
 
     <joint name="shoulder_joint">
-      <command_interface name="position"/>
+      <command_interface name="position" />
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
-      <state_interface name="velocity"/>
+      <state_interface name="velocity" />
     </joint>
 
     <joint name="elbow_joint">
-      <command_interface name="position"/>
+      <command_interface name="position" />
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
-      <state_interface name="velocity"/>
+      <state_interface name="velocity" />
     </joint>
 
     <joint name="wrist_joint">
-      <command_interface name="position"/>
+      <command_interface name="position" />
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
-      <state_interface name="velocity"/>
+      <state_interface name="velocity" />
     </joint>
 
     <joint name="roll_wrist_joint">
-      <command_interface name="position"/>
+      <command_interface name="position" />
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
-      <state_interface name="velocity"/>
+      <state_interface name="velocity" />
     </joint>
+
+    <joint name="extruder_screw_joint">
+      <command_interface name="position" />
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity" />
+    </joint>
+
   </ros2_control>
 
   <gazebo>
@@ -394,5 +503,5 @@
       <parameters>/home/juanmadrid/scorbot_ws/src/scorbot_er_v/config/scorbot_er_v_controllers.yaml</parameters>
     </plugin>
   </gazebo>
-  
+
 </robot>
