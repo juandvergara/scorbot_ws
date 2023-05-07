@@ -29,7 +29,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/slide_base_link.STL" />
+          filename="package://scorbot_er_v/meshes/slide_base_link.STL" />
       </geometry>
       <material
         name="">
@@ -43,7 +43,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/slide_base_link.STL" />
+          filename="package://scorbot_er_v/meshes/slide_base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -73,7 +73,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/base_link.STL" />
+          filename="package://scorbot_er_v/meshes/base_link.STL" />
       </geometry>
       <material
         name="">
@@ -87,7 +87,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/base_link.STL" />
+          filename="package://scorbot_er_v/meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -131,7 +131,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="3.1416 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/body_link.STL" />
+          filename="package://scorbot_er_v/meshes/body_link.STL" />
       </geometry>
       <material
         name="">
@@ -145,7 +145,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/body_link.STL" />
+          filename="package://scorbot_er_v/meshes/body_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -160,7 +160,7 @@ Stephen Brawner (brawner@gmail.com)
     <child
       link="body_link" />
     <axis
-      xyz="0 0 1" />
+      xyz="0 0 -1" />
     <dynamics damping="0.7" />
   </joint>
   <link
@@ -185,7 +185,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="3.1416 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/shoulder_link.STL" />
+          filename="package://scorbot_er_v/meshes/shoulder_link.STL" />
       </geometry>
       <material
         name="">
@@ -199,7 +199,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/shoulder_link.STL" />
+          filename="package://scorbot_er_v/meshes/shoulder_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -239,7 +239,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="3.1416 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/elbow_link.STL" />
+          filename="package://scorbot_er_v/meshes/elbow_link.STL" />
       </geometry>
       <material
         name="">
@@ -253,7 +253,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/elbow_link.STL" />
+          filename="package://scorbot_er_v/meshes/elbow_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -293,7 +293,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/wrist_link.STL" />
+          filename="package://scorbot_er_v/meshes/wrist_link.STL" />
       </geometry>
       <material
         name="">
@@ -307,7 +307,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/wrist_link.STL" />
+          filename="package://scorbot_er_v/meshes/wrist_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -347,7 +347,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 3.1416" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/roll_wrist_link.STL" />
+          filename="package://scorbot_er_v/meshes/roll_wrist_link.STL" />
       </geometry>
       <material
         name="">
@@ -361,7 +361,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/roll_wrist_link.STL" />
+          filename="package://scorbot_er_v/meshes/roll_wrist_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -401,7 +401,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/extruder_link.STL" />
+          filename="package://scorbot_er_v/meshes/extruder_link.STL" />
       </geometry>
       <material
         name="">
@@ -415,7 +415,7 @@ Stephen Brawner (brawner@gmail.com)
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://scorbot_er_v/meshes-extruder/extruder_link.STL" />
+          filename="package://scorbot_er_v/meshes/extruder_link.STL" />
       </geometry>
     </collision>
   </link>
