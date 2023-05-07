@@ -132,7 +132,7 @@ class InverseKinematics(Node):
         joint_trajectory_msg = JointTrajectory()
         trajectory_point = JointTrajectoryPoint()
         joint_trajectory_msg.joint_names = ["slide_base_joint", "body_joint", "shoulder_joint", "elbow_joint",
-                                                 "wrist_joint", "roll_wrist_joint"]
+                                                 "wrist_joint", "roll_wrist_joint", "extruder_screw_joint"]
 
         data = (request.data).split(",")
         position = [float(i) for i in data[0:3]]
@@ -146,7 +146,7 @@ class InverseKinematics(Node):
 
         joint_trajectory_msg.header.stamp = self.get_clock().now().to_msg()
         trajectory_point.positions = [base_position, body_position, shoulder_position, elbow_position,
-                                           wrist_position, wrist_yaw]
+                                           wrist_position, wrist_yaw, 0.0]
         trajectory_point.time_from_start = Duration(sec=5)
         joint_trajectory_msg.points.append(trajectory_point)
 
