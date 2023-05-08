@@ -85,9 +85,9 @@ class RobotFeedbackNode(Node):
 
         self.joint_state_position.header.stamp = self.get_clock().now().to_msg()
         self.joint_state_position.name = [
-            "slide_base_joint", "body_joint", "shoulder_joint", "elbow_joint", "wrist_joint", "roll_wrist_joint"]
+            "slide_base_joint", "body_joint", "shoulder_joint", "elbow_joint", "wrist_joint", "roll_wrist_joint", "extruder_screw_joint"]
         self.joint_state_position.position = [base_position, body_position, shoulder_position, elbow_position,
-                                              wrist_position, wrist_yaw]
+                                              wrist_position, wrist_yaw, 0.0]
         self.joint_states_publisher.publish(self.joint_state_position)
         # self.get_logger().warn(f'Receiving: "{raw_list_master[1]}", "{raw_list_master[2]}", "{raw_list_slave[0]}", "{raw_list_slave[1]}", "{raw_list_slave[2]}"')
 
@@ -98,11 +98,12 @@ class RobotFeedbackNode(Node):
         self.get_logger().info(f'Sending serial data {data_send}\n')
         data_to_control = data_send.split(',')
 
+        body = -float(data_to_control[1])
         elbow = -float(data_to_control[2]) - float(data_to_control[3])
         wrist_left = float(data_to_control[5]) - float(data_to_control[4]) + elbow
         wrist_right = float(data_to_control[4]) + float(data_to_control[5]) - elbow
 
-        data_master = "p " + data_to_control[0] + "," + "-" + data_to_control[1] + "," + data_to_control[2] + "\n"
+        data_master = "p " + data_to_control[0] + "," + str(body) + "," + data_to_control[2] + "\n"
         data_slave = "p " + str(elbow) + "," + str(wrist_left) + "," + str(wrist_right) + "\n"
 
         command_master = data_master.encode('utf-8')
