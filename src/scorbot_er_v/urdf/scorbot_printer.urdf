@@ -214,7 +214,7 @@ Stephen Brawner (brawner@gmail.com)
     <child
       link="shoulder_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <dynamics damping="0.7" />
   </joint>
   <link
@@ -268,7 +268,7 @@ Stephen Brawner (brawner@gmail.com)
     <child
       link="elbow_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <dynamics damping="0.7" />
   </joint>
   <link
@@ -322,7 +322,7 @@ Stephen Brawner (brawner@gmail.com)
     <child
       link="wrist_link" />
     <axis
-      xyz="0 0 -1" />
+      xyz="0 0 1" />
     <dynamics damping="0.7" />
   </joint>
   <link
