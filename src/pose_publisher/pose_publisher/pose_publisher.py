@@ -114,7 +114,7 @@ class InverseKinematics(Node):
 
         self.joint_trajectory_publisher = self.create_publisher(
             JointTrajectory,
-            'arm_controller/joint_trajectory',
+            'joint_trajectory_position_controller/joint_trajectory',  # arm_controller/joint_trajectory    /    joint_trajectory_position_controller/joint_trajectory
             10
         )
 
@@ -147,7 +147,7 @@ class InverseKinematics(Node):
         joint_trajectory_msg.header.stamp = self.get_clock().now().to_msg()
         trajectory_point.positions = [base_position, body_position, shoulder_position, elbow_position,
                                            wrist_position, wrist_yaw, 0.0]
-        trajectory_point.time_from_start = Duration(sec=5)
+        trajectory_point.time_from_start = Duration(sec=10)
         joint_trajectory_msg.points.append(trajectory_point)
 
         self.joint_trajectory_publisher.publish(joint_trajectory_msg)
