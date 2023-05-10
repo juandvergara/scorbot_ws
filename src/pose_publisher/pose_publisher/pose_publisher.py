@@ -16,10 +16,17 @@ z_real = 0.200
 
 position = [x_real, y_real, z_real]
 rotation = [0, 0, 0]
+limits = [(-1000,100), (-3.15, 2.09), (-0.52, 2.09), (-1000, 1000), (-1000, 1000), (-1000, 1000)]
+
+def check_variable_limits(variables, limits):
+    for i, var in enumerate(variables):
+        if var < limits[i][0] or var > limits[i][1]:
+            return True
+    return False
 
 
 def inverse_kinematics_scorbot():
-    global position, rotation
+    global position, rotation, limits
     rotation = [radians(rotation[0]), radians(
         rotation[1]), radians(rotation[2])]
     position_t = np.array([[position[0]],
@@ -56,17 +63,18 @@ def inverse_kinematics_scorbot():
     ay = R[1, 2]
     az = R[2, 2]
 
-    if position[1] < 0.4:
-        banda = position[1] + 0.1
-    else:
-        banda = 0.100 * ((position[1] - 0.300) // 0.100) + 0.05
+    # if position[1] < 0.4:
+    #     banda = position[1] + 0.1
+    # else:
+    #     banda = 0.100 * ((position[1] - 0.300) // 0.100) + 0.05
 
     offset_banda = 0.17
+    banda = 0.0
 
-    if position[1] < 0:
-        banda = 0
-    elif banda > 0.95:
-        banda = 0.95
+    # if position[1] < 0:
+    #     banda = 0
+    # elif banda > 0.95:
+    #     banda = 0.95
 
     d_1 = offset_banda + banda
 
@@ -104,7 +112,13 @@ def inverse_kinematics_scorbot():
     print(banda, theta_1, theta_2, theta_3, theta_4, theta_5)
     print("Success pose! \n")
 
-    return float(banda), theta_1, theta_2, theta_3, theta_4, theta_5
+    result = [banda, theta_1, theta_2, theta_3, theta_4, theta_5]
+
+    if check_variable_limits(result, limits):
+        print("\n OUT LIMITS ROBOT! \n")
+        return -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
+
+    return result
 
 
 class InverseKinematics(Node):
@@ -114,7 +128,7 @@ class InverseKinematics(Node):
 
         self.joint_trajectory_publisher = self.create_publisher(
             JointTrajectory,
-            'joint_trajectory_position_controller/joint_trajectory',  # arm_controller/joint_trajectory    /    joint_trajectory_position_controller/joint_trajectory
+            'arm_controller/joint_trajectory',  # arm_controller/joint_trajectory    /    joint_trajectory_position_controller/joint_trajectory
             10
         )
 
