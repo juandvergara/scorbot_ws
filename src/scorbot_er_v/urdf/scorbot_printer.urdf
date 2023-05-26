@@ -434,6 +434,15 @@ Stephen Brawner (brawner@gmail.com)
     <dynamics damping="0.7" />
   </joint>
 
+  <link name="hotend_link">
+  </link>
+  <joint name="hotend_joint" type="fixed">
+    <origin xyz="-0.049 -0.0137 0.132"
+            rpy="0 -1.5708 0" />
+    <parent link="roll_wrist_link" />
+    <child link="hotend_link"/>
+  </joint>
+
   <ros2_control name="GazeboSystem" type="system">
 
     <hardware>
