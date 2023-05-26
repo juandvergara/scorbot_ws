@@ -9,6 +9,7 @@ import numpy as np
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from visualization_msgs.msg import Marker
 
 x_real = 0.200
 y_real = 0.200
@@ -18,6 +19,13 @@ position = [x_real, y_real, z_real]
 rotation = [0, 0, 0]
 limits = [(-1000,100), (-3.15, 2.09), (-0.52, 2.09), (-1000, 1000), (-1000, 1000), (-1000, 1000)]
 
+wrist_roll2hotend = np.array([[cos(radians(-90)),  0, sin(radians(-90)), -0.049], 
+                      [         0,  1,          0, -0.0137], 
+                      [-sin(radians(-90)), 0, cos(radians(-90)), 0.132],
+                      [0, 0,       0,           1]])
+
+hotend2wrist_roll = np.linalg.inv(wrist_roll2hotend)
+
 def check_variable_limits(variables, limits):
     for i, var in enumerate(variables):
         if var < limits[i][0] or var > limits[i][1]:
@@ -25,13 +33,14 @@ def check_variable_limits(variables, limits):
     return False
 
 
-def inverse_kinematics_scorbot():
-    global position, rotation, limits
-    rotation = [radians(rotation[0]), radians(
-        rotation[1]), radians(rotation[2])]
-    position_t = np.array([[position[0]],
-                           [position[1]],
-                           [position[2]]])
+def inverse_kinematics_scorbot(position_goal, rotation_goal):
+    global limits, hotend2wrist_roll
+    rotation = [radians(rotation_goal[0]), 
+                radians(rotation_goal[1]), 
+                radians(rotation_goal[2])]
+    position_t = np.array([[position_goal[0]],
+                           [position_goal[1]],
+                           [position_goal[2]]])
 
     scale_perception = np.array([0, 0, 0, 1])
 
@@ -49,19 +58,20 @@ def inverse_kinematics_scorbot():
 
     R = (Rz.dot(Ry)).dot(Rx)
     T = np.vstack((np.hstack((R, position_t)), scale_perception))
+    arm_transform = T.dot(hotend2wrist_roll)
 
     l_1 = 0.450
     l_2 = 0.220
     l_3 = 0.220
     a_2 = 0.025
 
-    nx = R[0, 0]
-    ny = R[1, 0]
-    sx = R[0, 1]
-    sy = R[1, 1]
-    ax = R[0, 2]
-    ay = R[1, 2]
-    az = R[2, 2]
+    nx = arm_transform[0, 0]
+    ny = arm_transform[1, 0]
+    sx = arm_transform[0, 1]
+    sy = arm_transform[1, 1]
+    ax = arm_transform[0, 2]
+    ay = arm_transform[1, 2]
+    az = arm_transform[2, 2]
 
     # if position[1] < 0.4:
     #     banda = position[1] + 0.1
@@ -78,9 +88,9 @@ def inverse_kinematics_scorbot():
 
     d_1 = offset_banda + banda
 
-    x = position[0]
-    y = position[1] - d_1
-    z = position[2] - l_1
+    x = arm_transform[0,3]
+    y = arm_transform[1,3] - d_1
+    z = arm_transform[2,3] - l_1
 
     theta_1 = atan2(-x, y)
     theta_5 = atan2(nx*cos(theta_1) + ny*sin(theta_1),
@@ -106,7 +116,7 @@ def inverse_kinematics_scorbot():
         (theta_2 + theta_3)
 
     print("Matrix translation and roatation resultant \n")
-    print(T)
+    print(arm_transform)
 
     print("\n Value each joint \n")
     print(banda, theta_1, theta_2, theta_3, theta_4, theta_5)
@@ -132,11 +142,18 @@ class InverseKinematics(Node):
             10
         )
 
+        self.marker_object_listener = self.create_publisher(Marker, '/marker_hotend', 10)
+
         self.srv = self.create_service(
             JointTarget, 'pose_target', self.pose_target_callback)
 
         time.sleep(0.2)
 
+        self.marker_object = Marker()
+        self.marker_object.header.frame_id = '/hotend_link'
+        self.marker_object.id = 0
+        self.marker_object.type = Marker.LINE_STRIP
+        self.marker_object.action = Marker.ADD
 
         self.get_logger().info('Waiting goal pose ...\n')
 
@@ -152,7 +169,7 @@ class InverseKinematics(Node):
         position = [float(i) for i in data[0:3]]
         rotation = [float(i) for i in data[3:6]]
 
-        base_position, body_position, shoulder_position, elbow_position, wrist_position, wrist_yaw = inverse_kinematics_scorbot()
+        base_position, body_position, shoulder_position, elbow_position, wrist_position, wrist_yaw = inverse_kinematics_scorbot(position, rotation)
 
         if base_position == -1.0:
             self.get_logger().error('\n OUT WORKSPACE ROBOT! \n')
@@ -161,7 +178,7 @@ class InverseKinematics(Node):
         joint_trajectory_msg.header.stamp = self.get_clock().now().to_msg()
         trajectory_point.positions = [base_position, body_position, shoulder_position, elbow_position,
                                            wrist_position, wrist_yaw, 0.0]
-        trajectory_point.time_from_start = Duration(sec=10)
+        trajectory_point.time_from_start = Duration(sec=5)
         joint_trajectory_msg.points.append(trajectory_point)
 
         self.joint_trajectory_publisher.publish(joint_trajectory_msg)
