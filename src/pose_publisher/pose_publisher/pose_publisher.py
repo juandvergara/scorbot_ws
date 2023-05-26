@@ -128,7 +128,7 @@ class InverseKinematics(Node):
 
         self.joint_trajectory_publisher = self.create_publisher(
             JointTrajectory,
-            'arm_controller/joint_trajectory',  # arm_controller/joint_trajectory    /    joint_trajectory_position_controller/joint_trajectory
+            'joint_trajectory_position_controller/joint_trajectory',  # arm_controller/joint_trajectory    /    joint_trajectory_position_controller/joint_trajectory
             10
         )
 

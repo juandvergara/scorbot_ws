@@ -23,7 +23,7 @@ forward_position_controller:
       - extruder_screw_joint
     interface_name: position
 
-arm_controller:
+joint_trajectory_position_controller:
   ros__parameters:
     joints:
       - slide_base_joint
