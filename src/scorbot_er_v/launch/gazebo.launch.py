@@ -61,7 +61,7 @@ def generate_launch_description():
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["arm_controller"],
+        arguments=["joint_trajectory_position_controller"],
     )
 
     joint_foward_controller = Node(

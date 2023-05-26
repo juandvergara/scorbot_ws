@@ -5,7 +5,7 @@ controller_manager:
     forward_position_controller:
       type: forward_command_controller/ForwardCommandController
 
-    arm_controller:
+    joint_trajectory_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
     joint_state_broadcaster:
