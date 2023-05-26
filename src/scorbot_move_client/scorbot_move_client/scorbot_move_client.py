@@ -13,7 +13,7 @@ class ScorbotActionClient(Node):
 
     def __init__(self):
         super().__init__('scorbot_action_client')
-        self._action_client = ActionClient(self, FollowJointTrajectory, '/arm_controller/follow_joint_trajectory')
+        self._action_client = ActionClient(self, FollowJointTrajectory, '/joint_trajectory_position_controller/follow_joint_trajectory')
       
     def startTrajectory(self):
         goal_msg = FollowJointTrajectory.Goal()
