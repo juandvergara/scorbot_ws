@@ -17,14 +17,16 @@ z_real = 0.200
 
 position = [x_real, y_real, z_real]
 rotation = [0, 0, 0]
-limits = [(-1000,100), (-3.15, 2.09), (-0.52, 2.09), (-1000, 1000), (-1000, 1000), (-1000, 1000)]
+limits = [(-1000, 100), (-3.15, 2.09), (-0.52, 2.09),
+          (-1000, 1000), (-1000, 1000), (-1000, 1000)]
 
-wrist_roll2hotend = np.array([[cos(radians(-90)),  0, sin(radians(-90)), -0.049], 
-                      [         0,  1,          0, -0.0137], 
-                      [-sin(radians(-90)), 0, cos(radians(-90)), 0.132],
-                      [0, 0,       0,           1]])
+wrist_roll2hotend = np.array([[cos(radians(-90)),  0, sin(radians(-90)), -0.049],
+                              [0,  1,          0, -0.0137],
+                              [-sin(radians(-90)), 0, cos(radians(-90)), 0.132],
+                              [0, 0,       0,           1]])
 
 hotend2wrist_roll = np.linalg.inv(wrist_roll2hotend)
+
 
 def check_variable_limits(variables, limits):
     for i, var in enumerate(variables):
@@ -33,10 +35,10 @@ def check_variable_limits(variables, limits):
     return False
 
 
-def inverse_kinematics_scorbot(position_goal, rotation_goal):
+def inverse_kinematics_scorbot(position_goal, rotation_goal, wrist):
     global limits, hotend2wrist_roll
-    rotation = [radians(rotation_goal[0]), 
-                radians(rotation_goal[1]), 
+    rotation = [radians(rotation_goal[0]),
+                radians(rotation_goal[1]),
                 radians(rotation_goal[2])]
     position_t = np.array([[position_goal[0]],
                            [position_goal[1]],
@@ -57,12 +59,14 @@ def inverse_kinematics_scorbot(position_goal, rotation_goal):
                    [0, 0, 1]])
 
     R = (Rz.dot(Ry)).dot(Rx)
+    # R = np.matmul(np.matmul(Rz,Ry), Rx)
     T = np.vstack((np.hstack((R, position_t)), scale_perception))
-    arm_transform = T.dot(hotend2wrist_roll)
+    # arm_transform = np.matmul(T, hotend2wrist_roll) if wrist else T
+    arm_transform = T.dot(hotend2wrist_roll) if wrist else T
 
-    l_1 = 0.450
-    l_2 = 0.220
-    l_3 = 0.220
+    link_1 = 0.450
+    link_2 = 0.220
+    link_3 = 0.220
     a_2 = 0.025
 
     nx = arm_transform[0, 0]
@@ -74,59 +78,60 @@ def inverse_kinematics_scorbot(position_goal, rotation_goal):
     az = arm_transform[2, 2]
 
     # if position[1] < 0.4:
-    #     banda = position[1] + 0.1
+    #     slide_base = position[1] + 0.1
     # else:
-    #     banda = 0.100 * ((position[1] - 0.300) // 0.100) + 0.05
+    #     slide_base = 0.100 * ((position[1] - 0.300) // 0.100) + 0.05
 
-    offset_banda = 0.17
-    banda = 0.0
+    offset_slide_base = 0.17
+    slide_base = 0.0
 
     # if position[1] < 0:
-    #     banda = 0
-    # elif banda > 0.95:
-    #     banda = 0.95
+    #     slide_base = 0
+    # elif slide_base > 0.95:
+    #     slide_base = 0.95
 
-    d_1 = offset_banda + banda
+    d_1 = offset_slide_base + slide_base
 
-    x = arm_transform[0,3]
-    y = arm_transform[1,3] - d_1
-    z = arm_transform[2,3] - l_1
+    x = arm_transform[0, 3]
+    y = arm_transform[1, 3] - d_1
+    z = arm_transform[2, 3] - link_1
 
     theta_1 = atan2(-x, y)
     theta_5 = atan2(nx*cos(theta_1) + ny*sin(theta_1),
                     sx*cos(theta_1) + sy*sin(theta_1))
 
     w = sqrt(x**2 + y**2) - a_2
-    c3 = (z**2 + w**2 - l_2**2 - l_3**2)/(2*l_2*l_3)
+    cos_theta_3 = (z**2 + w**2 - link_2**2 - link_3**2)/(2*link_2*link_3)
 
-    if c3 > 1:
-        print("\n OUT OF WORKSPACE ROBOT! \n")
+    if cos_theta_3 > 1:
+        print("\n OUT OF WORKSPACE ROBOT! BY THETA3\n")
         return -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
     else:
-        s3 = -sqrt(1-c3**2)
+        sin_theta_3 = -sqrt(1-cos_theta_3**2)
 
-    theta_3 = atan2(s3, c3)
+    theta_3 = atan2(sin_theta_3, cos_theta_3)
 
-    k1 = l_2 + l_3*c3
-    k2 = l_3*s3
+    k1 = link_2 + link_3*cos_theta_3
+    k2 = link_3*sin_theta_3
 
     theta_2 = atan2(z, w) - atan2(k2, k1)
 
     theta_4 = atan2(az, -ax*sin(theta_1) + ay*cos(theta_1)) - \
         (theta_2 + theta_3)
 
+    np.set_printoptions(precision=5, suppress=True)
     print("Matrix translation and roatation resultant \n")
     print(arm_transform)
 
     print("\n Value each joint \n")
-    print(banda, theta_1, theta_2, theta_3, theta_4, theta_5)
+    print(f"{slide_base:.6f}, {theta_1:.6f}, {theta_2:.6f}, {theta_3:.6f}, {theta_4:.6f}, {theta_5:.6f}")
     print("Success pose! \n")
 
-    result = [banda, theta_1, theta_2, theta_3, theta_4, theta_5]
+    result = [slide_base, theta_1, theta_2, theta_3, theta_4, theta_5]
 
-    if check_variable_limits(result, limits):
-        print("\n OUT LIMITS ROBOT! \n")
-        return -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
+    # if check_variable_limits(result, limits):
+    #     print("\n OUT LIMITS ROBOT! \n")
+    #     return -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
 
     return result
 
@@ -138,11 +143,13 @@ class InverseKinematics(Node):
 
         self.joint_trajectory_publisher = self.create_publisher(
             JointTrajectory,
-            'joint_trajectory_position_controller/joint_trajectory',  # arm_controller/joint_trajectory    /    joint_trajectory_position_controller/joint_trajectory
+            # arm_controller/joint_trajectory    /    joint_trajectory_position_controller/joint_trajectory
+            'joint_trajectory_position_controller/joint_trajectory',
             10
         )
 
-        self.marker_object_listener = self.create_publisher(Marker, '/marker_hotend', 10)
+        self.marker_object_listener = self.create_publisher(
+            Marker, '/marker_hotend', 10)
 
         self.srv = self.create_service(
             JointTarget, 'pose_target', self.pose_target_callback)
@@ -156,6 +163,7 @@ class InverseKinematics(Node):
         self.marker_object.action = Marker.ADD
 
         self.get_logger().info('Waiting goal pose ...\n')
+        self.extruder_pos = 0
 
     def pose_target_callback(self, request, response):
         global position, rotation
@@ -163,13 +171,15 @@ class InverseKinematics(Node):
         joint_trajectory_msg = JointTrajectory()
         trajectory_point = JointTrajectoryPoint()
         joint_trajectory_msg.joint_names = ["slide_base_joint", "body_joint", "shoulder_joint", "elbow_joint",
-                                                 "wrist_joint", "roll_wrist_joint", "extruder_screw_joint"]
+                                            "wrist_joint", "roll_wrist_joint", "extruder_screw_joint"]
 
         data = (request.data).split(",")
         position = [float(i) for i in data[0:3]]
         rotation = [float(i) for i in data[3:6]]
+        self.extruder_pos += float(data[6])
 
-        base_position, body_position, shoulder_position, elbow_position, wrist_position, wrist_yaw = inverse_kinematics_scorbot(position, rotation)
+        base_position, body_position, shoulder_position, elbow_position, wrist_position, wrist_yaw = inverse_kinematics_scorbot(
+            position, rotation, True)
 
         if base_position == -1.0:
             self.get_logger().error('\n OUT WORKSPACE ROBOT! \n')
@@ -177,7 +187,7 @@ class InverseKinematics(Node):
 
         joint_trajectory_msg.header.stamp = self.get_clock().now().to_msg()
         trajectory_point.positions = [base_position, body_position, shoulder_position, elbow_position,
-                                           wrist_position, wrist_yaw, 0.0]
+                                      wrist_position, wrist_yaw, self.extruder_pos]
         trajectory_point.time_from_start = Duration(sec=5)
         joint_trajectory_msg.points.append(trajectory_point)
 
