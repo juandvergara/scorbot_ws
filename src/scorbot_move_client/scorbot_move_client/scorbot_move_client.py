@@ -115,19 +115,36 @@ class ScorbotActionClient(Node):
                                                 "wrist_joint", "roll_wrist_joint", "extruder_screw_joint"]
 
     def calculateTrajectory(self):
-        time_btw_points = 0
+        time_points = 0
+        time_between_points = 2
+        num_rows = 3
 
         points_xyz_rpy = np.array([
-            [0.47, 0.4, 0.2, 0, 180, -155.1, 0],
-            [0.47, 0.3, 0.2, 0, 180, -166.5, 0],
-            [0.37, 0.3, 0.2, 0, 180, -162, 0],
-            [0.37, 0.4, 0.2, 0, 180, -149.6, 0],
-            [0.47, 0.4, 0.2, 0, 180, -155.1, 0]
+            [0.47, 0.4, 0.1805, 0, 180, -155.1, 0],
+            [0.47, 0.3, 0.1815, 0, 180, -166.5, 0],
+            [0.37, 0.3, 0.1820, 0, 180, -162.0, 0],
+            [0.37, 0.4, 0.1810, 0, 180, -149.6, 0],
+            [0.47, 0.4, 0.1805, 0, 180, -155.1, 0]
         ])
+
+        post_process_xyz_rpy = []
+
+        for i in range(len(points_xyz_rpy) - 1):
+            current_row = points_xyz_rpy[i]
+            next_row = points_xyz_rpy[i + 1]
+            post_process_xyz_rpy.append(current_row)
+
+            spacing = (next_row - current_row) / (num_rows + 1)
+
+            for j in range(1, num_rows + 1):
+                new_row = current_row + (j * spacing)
+                post_process_xyz_rpy.append(new_row)
+
+        post_process_xyz_rpy.append(points_xyz_rpy[-1])
 
         trajectory_points = []
 
-        for data_point in points_xyz_rpy:
+        for data_point in post_process_xyz_rpy:
             position = [float(i) for i in data_point[0:3]]
             rotation = [float(i) for i in data_point[3:6]]
             extruder_pos = float(data_point[6])
@@ -137,9 +154,9 @@ class ScorbotActionClient(Node):
         for positions in trajectory_points:
             trajectory_point = JointTrajectoryPoint()
             trajectory_point.positions = positions
-            trajectory_point.time_from_start = Duration(sec=time_btw_points)
+            trajectory_point.time_from_start = Duration(sec=time_points)
             self.goal_msg.trajectory.points.append(trajectory_point)
-            time_btw_points += 5
+            time_points += time_between_points
 
     def startTrajectory(self):
 
