@@ -20,9 +20,11 @@ rotation = [0, 0, 0]
 limits = [(-1000, 100), (-3.15, 2.09), (-0.52, 2.09),
           (-1000, 1000), (-1000, 1000), (-1000, 1000)]
 
-wrist_roll2hotend = np.array([[cos(radians(-90)),  0, sin(radians(-90)), -0.049],
+rotation_y = radians(-90)
+
+wrist_roll2hotend = np.array([[cos(rotation_y),  0, sin(rotation_y), -0.049],
                               [0,  1,          0, -0.0137],
-                              [-sin(radians(-90)), 0, cos(radians(-90)), 0.132],
+                              [-sin(rotation_y), 0, cos(rotation_y), 0.132],
                               [0, 0,       0,           1]])
 
 hotend2wrist_roll = np.linalg.inv(wrist_roll2hotend)
@@ -61,8 +63,8 @@ def inverse_kinematics_scorbot(position_goal, rotation_goal, wrist):
     R = (Rz.dot(Ry)).dot(Rx)
     # R = np.matmul(np.matmul(Rz,Ry), Rx)
     T = np.vstack((np.hstack((R, position_t)), scale_perception))
-    # arm_transform = np.matmul(T, hotend2wrist_roll) if wrist else T
-    arm_transform = T.dot(hotend2wrist_roll) if wrist else T
+    arm_transform = np.matmul(T, hotend2wrist_roll) if wrist else T
+    # arm_transform = T.dot(hotend2wrist_roll) if wrist else T
 
     link_1 = 0.450
     link_2 = 0.220
@@ -120,8 +122,17 @@ def inverse_kinematics_scorbot(position_goal, rotation_goal, wrist):
         (theta_2 + theta_3)
 
     np.set_printoptions(precision=5, suppress=True)
-    print("Matrix translation and roatation resultant \n")
+    print("Matrix translation and rotation resultant \n")
     print(arm_transform)
+
+    print("\nMatrix hotend2wrist \n")
+    print(hotend2wrist_roll)
+
+    print("\nMatrix desired \n")
+    print(T)
+
+    print("X:")
+    print(arm_transform[0, 3])
 
     print("\n Value each joint \n")
     print(f"{slide_base:.6f}, {theta_1:.6f}, {theta_2:.6f}, {theta_3:.6f}, {theta_4:.6f}, {theta_5:.6f}")
@@ -134,7 +145,6 @@ def inverse_kinematics_scorbot(position_goal, rotation_goal, wrist):
     #     return -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
 
     return result
-
 
 class InverseKinematics(Node):
 
@@ -188,7 +198,7 @@ class InverseKinematics(Node):
         joint_trajectory_msg.header.stamp = self.get_clock().now().to_msg()
         trajectory_point.positions = [base_position, body_position, shoulder_position, elbow_position,
                                       wrist_position, wrist_yaw, self.extruder_pos]
-        trajectory_point.time_from_start = Duration(sec=5)
+        trajectory_point.time_from_start = Duration(nanosec=2000000000)
         joint_trajectory_msg.points.append(trajectory_point)
 
         self.joint_trajectory_publisher.publish(joint_trajectory_msg)
