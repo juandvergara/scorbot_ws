@@ -22,21 +22,91 @@ hotend2wrist_roll = np.linalg.inv(wrist_roll2hotend)
 
 gcode_filename = '/home/juanmadrid/Escritorio/Shape-Box.gcode'
 
+def post_process_coordenates(data, resolution, lower_limit, upper_limit):
+    columns = [[] for _ in range(len(data[0]))]
+
+    # Append the first point to the respective column list
+    for value, column in zip(data[0], columns):
+        column.append(value)
+
+    # Iterate over the rows in the data array
+    for i in range(len(data) - 1):
+        point1 = data[i]
+        point2 = data[i + 1]
+        
+        x1, y1, z1, roll1, pitch1, yaw1, e1, time1 = point1
+        x2, y2, z2, roll2, pitch2, yaw2, e2, time2 = point2
+        
+        # Calculate the Euclidean distance between the two points
+        distance = np.sqrt((x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)
+        
+        if distance > upper_limit:
+            # Calculate the number of intermediate points based on the spacing
+            num_points = int(distance / resolution)
+            
+            # Calculate the increments for each column
+            x_increment = (x2 - x1) / num_points
+            y_increment = (y2 - y1) / num_points
+            z_increment = (z2 - z1) / num_points
+            roll_increment = (roll2 - roll1) / num_points
+            pitch_increment = (pitch2 - pitch1) / num_points
+            yaw_increment = (yaw2- yaw1) / num_points
+            extruder_increment = (e2 - e1) / num_points
+            time_increment = (time2 - time1) / num_points
+            
+            # Iterate and interpolate values for each column
+            for j in range(num_points):
+                x = x1 + j * x_increment
+                y = y1 + j * y_increment
+                z = z1 + j * z_increment
+                roll = roll1 + j * roll_increment
+                pitch = pitch1 + j * pitch_increment
+                yaw = yaw1 + j * yaw_increment
+                e = e1 + j * extruder_increment
+                t = time1 + j * time_increment
+                
+                # Append the interpolated values to the respective column list
+                if j!=0:
+                    columns[0].append(x)
+                    columns[1].append(y)
+                    columns[2].append(z)
+                    columns[3].append(roll)
+                    columns[4].append(pitch)
+                    columns[5].append(yaw)
+                    columns[6].append(e)
+                    columns[7].append(t)
+        elif distance >= lower_limit:
+            # Append the original point to the respective column list
+            for value, column in zip(point1, columns):
+                column.append(value)
+
+    # Add the last point of the original data
+    for value, column in zip(data[-1], columns):
+        column.append(value)
+
+    # Transpose the column lists to get the interpolated data in columns
+    return np.transpose(columns)
+
 def extract_values_from_gcode(filename):
     data = []
-    last_values = [0, 0, 0, 0, 0, 0, 0]  # Initial values for X, Y, Z, E, R, P, Y, NANOSEC
-    time_sum = 0  # Variable to store the cumulative sum of time_nanosec
-    time_sum_nano = 0
+    # Initial values for X, Y, Z, E, R, P, Y, NANOSEC
+    last_values = [0, 0, 0, 0, 0, 0, 0]
+    time_sum_sec = 0  # Variable to store the cumulative sum of time_nanosec
 
     with open(filename, 'r') as file:
         for line in file:
             if line.startswith('G1'):
                 words = line.split()
-                x = next((float(word[1:]) for word in words if word.startswith('X')), last_values[0]) / 1000
-                y = next((float(word[1:]) for word in words if word.startswith('Y')), last_values[1]) / 1000
-                z = next((float(word[1:]) for word in words if word.startswith('Z')), last_values[2])
-                e = next((float(word[1:]) for word in words if word.startswith('E')), last_values[3])
-                f = next((float(word[1:]) for word in words if word.startswith('F')), last_values[4])
+                x = next((float(word[1:]) for word in words if word.startswith(
+                    'X')), last_values[0]) / 1000
+                y = next((float(word[1:]) for word in words if word.startswith(
+                    'Y')), last_values[1]) / 1000
+                z = next(
+                    (float(word[1:]) for word in words if word.startswith('Z')), last_values[2])
+                e = next(
+                    (float(word[1:]) for word in words if word.startswith('E')), last_values[3])
+                f = next(
+                    (float(word[1:]) for word in words if word.startswith('F')), last_values[4])
 
                 if f != last_values[4]:
                     f /= 60 * 1000  # Divide F value by 60
@@ -47,17 +117,13 @@ def extract_values_from_gcode(filename):
                     last_values = [x, y, z, e, f, 180, -90]
                     continue
 
-                distance = sqrt((x - last_values[0]) ** 2 + (y - last_values[1]) ** 2 + (z - last_values[2]) ** 2)
-                time_sec = int((distance / f))
-                time_nanosec = (((distance / f) - time_sec) * 1e9)
+                distance = sqrt(
+                    (x - last_values[0]) ** 2 + (y - last_values[1]) ** 2 + (z - last_values[2]) ** 2)
+                time_sum_sec += (distance / f)
                 atan2_base = -degrees(atan2(x, y - 0.170)) - 90
 
                 last_values = [x, y, z, e, f, 180, atan2_base]
-                row = np.array(last_values[:3] + [0] + last_values[5:] + last_values[3:4] + [time_nanosec], dtype=np.float64)  # Create the modified row as a NumPy array
-
-                time_sum += time_sec  # Update the cumulative sum of time_nanosec
-                time_sum_nano += time_nanosec
-                row[-1] = [time_sum] + [time_sum_nano]  # Assign the cumulative sum to the last element of the row
+                row = np.array(last_values[:3] + [0] + last_values[5:] + last_values[3:4] + [time_sum_sec], dtype=np.float64)  # Create the modified row as a NumPy array
 
                 data.append(row)  # Append the modified row to data
 
@@ -136,12 +202,12 @@ def inverse_kinematics_scorbot(position_goal, rotation_goal, extruder_pos, sec_t
         (theta_2 + theta_3)
 
     np.set_printoptions(precision=5, suppress=True)
-    print("Matrix translation and roatation resultant \n")
-    print(arm_transform)
+    # print("Matrix translation and roatation resultant \n")
+    # print(arm_transform)
 
-    print("\n Value each joint \n")
-    print(f"{slide_base:.6f}, {theta_1:.6f}, {theta_2:.6f}, {theta_3:.6f}, {theta_4:.6f}, {theta_5:.6f}")
-    print("Success pose! \n")
+    # print("\n Value each joint \n")
+    # print(f"{slide_base:.6f}, {theta_1:.6f}, {theta_2:.6f}, {theta_3:.6f}, {theta_4:.6f}, {theta_5:.6f}")
+    # print("Success pose! \n")
 
     result = [slide_base, theta_1, theta_2, theta_3, theta_4, theta_5, extruder_pos, sec_time_between_points, nanosec_time_between_points,]
 
@@ -163,21 +229,9 @@ class ScorbotActionClient(Node):
         num_rows = 3
 
         points_xyz_rpy = extract_values_from_gcode(gcode_filename)
+        print(points_xyz_rpy)
 
-        post_process_xyz_rpy = []
-
-        for i in range(len(points_xyz_rpy) - 1):
-            current_row = points_xyz_rpy[i]
-            next_row = points_xyz_rpy[i + 1]
-            post_process_xyz_rpy.append(current_row)
-
-            spacing = (next_row - current_row) / (num_rows + 1)
-
-            for j in range(1, num_rows + 1):
-                new_row = current_row + (j * spacing)
-                post_process_xyz_rpy.append(new_row)
-
-        post_process_xyz_rpy.append(points_xyz_rpy[-1])
+        post_process_xyz_rpy = post_process_coordenates(points_xyz_rpy, 0.002, 0.001, 0.005)
 
         trajectory_points = []
 
@@ -185,15 +239,16 @@ class ScorbotActionClient(Node):
             position = [float(i) for i in data_point[0:3]]
             rotation = [float(i) for i in data_point[3:6]]
             extruder_pos = float(data_point[6])
-            sec_time_between_points = int(data_point[7])
-            nanosec_time_between_points = int(data_point[7])
+            absolute_time = data_point[7]
+            sec_time_between_points = int(absolute_time)
+            nanosec_time_between_points = int((absolute_time - sec_time_between_points) * 1e9)
             result = inverse_kinematics_scorbot(position, rotation, extruder_pos, sec_time_between_points, nanosec_time_between_points, True)
             trajectory_points.append(result)
 
         for positions in trajectory_points:
             trajectory_point = JointTrajectoryPoint()
             trajectory_point.positions = positions[:7]
-            print(positions[7:8])
+            print(positions[7:][0])
             trajectory_point.time_from_start = Duration(sec=int(positions[7:8][0]),nanosec=int(positions[8:9][0]))
             self.goal_msg.trajectory.points.append(trajectory_point)
             time_points += time_between_points
