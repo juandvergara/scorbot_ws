@@ -166,12 +166,6 @@ class InverseKinematics(Node):
 
         time.sleep(0.2)
 
-        self.marker_object = Marker()
-        self.marker_object.header.frame_id = '/hotend_link'
-        self.marker_object.id = 0
-        self.marker_object.type = Marker.LINE_STRIP
-        self.marker_object.action = Marker.ADD
-
         self.get_logger().info('Waiting goal pose ...\n')
         self.extruder_pos = 0
 
@@ -198,7 +192,7 @@ class InverseKinematics(Node):
         joint_trajectory_msg.header.stamp = self.get_clock().now().to_msg()
         trajectory_point.positions = [base_position, body_position, shoulder_position, elbow_position,
                                       wrist_position, wrist_yaw, self.extruder_pos]
-        trajectory_point.time_from_start = Duration(nanosec=2000000000)
+        trajectory_point.time_from_start = Duration(nanosec=4000000000)
         joint_trajectory_msg.points.append(trajectory_point)
 
         self.joint_trajectory_publisher.publish(joint_trajectory_msg)
