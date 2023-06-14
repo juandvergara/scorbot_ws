@@ -1,43 +1,58 @@
-#!/usr/bin/env python
-
 import rclpy
-import tf2_ros
 from rclpy.node import Node
-from geometry_msgs.msg import TransformStamped
 from visualization_msgs.msg import Marker
-from builtin_interfaces.msg import Duration
+from geometry_msgs.msg import Point
+from tf2_ros.transform_listener import TransformListener
+from tf2_ros.buffer import Buffer
+from tf2_ros import LookupException
 
 class MarkerPublisher(Node):
     def __init__(self):
-        super().__init__('marker_publisher_node')
-        self.marker_pub = self.create_publisher(Marker, 'marker_topic', 10)
-        self.tf_sub = self.create_subscription(TransformStamped, 'tf_topic', self.tf_callback, 10)
-        self.tf_sub  # prevent unused variable warning
-        self.marker = Marker()
-        self.tf_buffer = tf2_ros.Buffer()
-        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
+        super().__init__('marker_publisher')
+        self.publisher_ = self.create_publisher(Marker, 'marker_topic', 10)
+        self.marker_timer_ = self.create_timer(0.1, self.publish_marker)
+        self.counter = 0
+        self.marker_msg = Marker()
+        self.config_marker()
+        self.init_tf_listener()
 
+    def init_tf_listener(self):
+        self.first_name_ = "hotend_link"
+        self.second_name_ = "world"
+        self.get_logger().info("Transforming from {} to {}".format(self.second_name_, self.first_name_))
+        self._tf_buffer = Buffer()
+        self._tf_listener = TransformListener(self._tf_buffer, self)
 
-    def tf_callback(self, msg):
+    def config_marker(self):
+        self.marker_msg.header.frame_id = 'world'
+        self.marker_msg.type = Marker.LINE_STRIP
+        self.marker_msg.action = Marker.ADD
+        self.marker_msg.pose.position.x = 0.0
+        self.marker_msg.pose.position.y = 0.0
+        self.marker_msg.pose.position.z = 0.0  # Add 0.01 to the Z-axis
+        self.marker_msg.pose.orientation.w = 1.0
+        self.marker_msg.scale.x = 0.0004  
+        self.marker_msg.color.a = 1.0
+        self.marker_msg.color.g = 1.0
+        self.marker_msg.color.r = 1.0
+
+    def publish_marker(self):
         try:
-            # Get the latest transform between the frame you want to follow and the fixed frame
-            transform = self.tf_buffer.lookup_transform('fixed_frame', '/hotend_link', rclpy.time.Time())
-        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-            return
+            trans = self._tf_buffer.lookup_transform(self.second_name_, self.first_name_, rclpy.time.Time())
+            self.get_logger().info("Transforming from {} to {}".format(trans.transform.translation.x, trans.transform.translation.y))
+            point = Point()
+            point.x = trans.transform.translation.x
+            point.y = trans.transform.translation.y
+            point.z = trans.transform.translation.z
 
-        self.marker.header.frame_id = 'fixed_frame'  # Set the fixed frame ID for the marker
-        self.marker.type = Marker.SPHERE
-        self.marker.action = Marker.ADD
-        self.marker.pose = transform.transform
-        self.marker.scale.x = 0.2  # Set the scale of the marker
-        self.marker.scale.y = 0.2
-        self.marker.scale.z = 0.2
-        self.marker.color.a = 1.0  # Set the color and transparency of the marker
-        self.marker.color.r = 1.0
-        self.marker.color.g = 0.0
-        self.marker.color.b = 0.0
+            self.marker_msg.points.append(point)
 
-        self.marker_pub.publish(self.marker)
+            self.publisher_.publish(self.marker_msg)
+            self.get_logger().info('Marker published')
+            self.counter = self.counter + 0.05
+
+        except LookupException as e:
+            self.get_logger().error('failed to get transform {} \n'.format(repr(e)))
 
 def main(args=None):
     rclpy.init(args=args)
