@@ -32,9 +32,8 @@ class MarkerPublisher(Node):
         self.marker_msg.pose.position.z = 0.0  # Add 0.01 to the Z-axis
         self.marker_msg.pose.orientation.w = 1.0
         self.marker_msg.scale.x = 0.0004  
-        self.marker_msg.color.a = 1.0
+        self.marker_msg.color.a = 0.5
         self.marker_msg.color.g = 1.0
-        self.marker_msg.color.r = 1.0
 
     def publish_marker(self):
         try:
