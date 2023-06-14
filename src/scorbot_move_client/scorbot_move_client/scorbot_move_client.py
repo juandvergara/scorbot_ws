@@ -1,5 +1,4 @@
 import time
-from custom_interfaces.srv import JointTarget  # type: ignore
 import rclpy
 from builtin_interfaces.msg import Duration
 
@@ -19,6 +18,10 @@ wrist_roll2hotend = np.array([[cos(radians(-90)),  0, sin(radians(-90)), -0.049]
 
 hotend2wrist_roll = np.linalg.inv(wrist_roll2hotend)
 
+base2station = np.array([[1,  0, 0, 0.0],
+                     [0,  1, 0, 0.0],
+                     [0,  0, 1, 0.2],
+                     [0,  0, 0, 1]])
 
 gcode_filename = '/home/juanmadrid/Escritorio/Shape-Box.gcode'
 
@@ -130,7 +133,7 @@ def extract_values_from_gcode(filename):
     return np.array(data)
 
 def inverse_kinematics_scorbot(position_goal, rotation_goal, extruder_pos, sec_time_between_points, nanosec_time_between_points, wrist):
-    global hotend2wrist_roll
+    global hotend2wrist_roll, base2station
     rotation = [radians(rotation_goal[0]),
                 radians(rotation_goal[1]),
                 radians(rotation_goal[2])]
@@ -154,7 +157,7 @@ def inverse_kinematics_scorbot(position_goal, rotation_goal, extruder_pos, sec_t
 
     R = (Rz.dot(Ry)).dot(Rx)
     T = np.vstack((np.hstack((R, position_t)), scale_perception))
-    arm_transform = T.dot(hotend2wrist_roll) if wrist else T
+    arm_transform = np.matmul(base2station, np.matmul(T, hotend2wrist_roll)) if wrist else T
 
     link_1 = 0.450
     link_2 = 0.220
@@ -248,7 +251,7 @@ class ScorbotActionClient(Node):
         for positions in trajectory_points:
             trajectory_point = JointTrajectoryPoint()
             trajectory_point.positions = positions[:7]
-            print(positions[7:][0])
+            print(positions[7:])
             trajectory_point.time_from_start = Duration(sec=int(positions[7:8][0]),nanosec=int(positions[8:9][0]))
             self.goal_msg.trajectory.points.append(trajectory_point)
             time_points += time_between_points

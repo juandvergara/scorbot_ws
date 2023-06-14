@@ -20,6 +20,11 @@ rotation = [0, 0, 0]
 limits = [(-1000, 100), (-3.15, 2.09), (-0.52, 2.09),
           (-1000, 1000), (-1000, 1000), (-1000, 1000)]
 
+base2station = np.array([[1,  0, 0, 0.0],
+                     [0,  1, 0, 0.0],
+                     [0,  0, 1, 0.2],
+                     [0,  0, 0, 1]])
+
 rotation_y = radians(-90)
 
 wrist_roll2hotend = np.array([[cos(rotation_y),  0, sin(rotation_y), -0.049],
@@ -38,7 +43,7 @@ def check_variable_limits(variables, limits):
 
 
 def inverse_kinematics_scorbot(position_goal, rotation_goal, wrist):
-    global limits, hotend2wrist_roll
+    global limits, hotend2wrist_roll, base2station
     rotation = [radians(rotation_goal[0]),
                 radians(rotation_goal[1]),
                 radians(rotation_goal[2])]
@@ -63,7 +68,7 @@ def inverse_kinematics_scorbot(position_goal, rotation_goal, wrist):
     R = (Rz.dot(Ry)).dot(Rx)
     # R = np.matmul(np.matmul(Rz,Ry), Rx)
     T = np.vstack((np.hstack((R, position_t)), scale_perception))
-    arm_transform = np.matmul(T, hotend2wrist_roll) if wrist else T
+    arm_transform = np.matmul(base2station, np.matmul(T, hotend2wrist_roll)) if wrist else T
     # arm_transform = T.dot(hotend2wrist_roll) if wrist else T
 
     link_1 = 0.450
