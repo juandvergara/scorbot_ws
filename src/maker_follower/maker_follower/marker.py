@@ -10,8 +10,7 @@ class MarkerPublisher(Node):
     def __init__(self):
         super().__init__('marker_publisher')
         self.publisher_ = self.create_publisher(Marker, 'marker_topic', 10)
-        self.marker_timer_ = self.create_timer(0.1, self.publish_marker)
-        self.counter = 0
+        self.marker_timer_ = self.create_timer(0.08, self.publish_marker)
         self.marker_msg = Marker()
         self.config_marker()
         self.init_tf_listener()
@@ -38,7 +37,7 @@ class MarkerPublisher(Node):
     def publish_marker(self):
         try:
             trans = self._tf_buffer.lookup_transform(self.second_name_, self.first_name_, rclpy.time.Time())
-            self.get_logger().info("Transforming from {} to {}".format(trans.transform.translation.x, trans.transform.translation.y))
+            # self.get_logger().info("Transforming from {} to {}".format(trans.transform.translation.x, trans.transform.translation.y))
             point = Point()
             point.x = trans.transform.translation.x
             point.y = trans.transform.translation.y
@@ -48,7 +47,6 @@ class MarkerPublisher(Node):
 
             self.publisher_.publish(self.marker_msg)
             self.get_logger().info('Marker published')
-            self.counter = self.counter + 0.05
 
         except LookupException as e:
             self.get_logger().error('failed to get transform {} \n'.format(repr(e)))
