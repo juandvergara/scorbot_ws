@@ -18,13 +18,12 @@ wrist_roll2hotend = np.array([[cos(radians(-90)),  0, sin(radians(-90)), -0.049]
 
 hotend2wrist_roll = np.linalg.inv(wrist_roll2hotend)
 
-base2station = np.array([[1,  0, 0, 0.0],
-                         [0,  1, 0, 0.0],
-                         [0,  0, 1, 0.2],
+base2station = np.array([[1,  0, 0, 0.3],
+                         [0,  1, 0, 0.3],
+                         [0,  0, 1, 0.25],
                          [0,  0, 0, 1]])
 
-gcode_filename = '/home/juanmadrid/Escritorio/Vase.gcode'
-
+gcode_filename = '/home/juanmadrid/Escritorio/Chair.gcode'
 
 def post_process_coordenates(data, resolution, lower_limit, upper_limit):
     columns = [[] for _ in range(len(data[0]))]
@@ -129,7 +128,7 @@ def extract_values_from_gcode(filename):
                 distance = sqrt(
                     (x - last_values[0]) ** 2 + (y - last_values[1]) ** 2 + (z - last_values[2]) ** 2)
                 time_sum_sec += (distance / f)
-                atan2_base = -degrees(atan2(x, y - 0.170)) - 90
+                atan2_base = -degrees(atan2(x + base2station[0,3], y - 0.170 + base2station[1,3])) - 90
 
                 last_values = [x, y, z, e, f, 180, atan2_base]
                 row = np.array(last_values[:3] + [0] + last_values[5:] + last_values[3:4] + [
@@ -241,7 +240,7 @@ class ScorbotActionClient(Node):
         # print(points_xyz_rpy)
 
         post_process_xyz_rpy = post_process_coordenates(
-            points_xyz_rpy, 0.0002, 0.0001, 0.0005)
+            points_xyz_rpy, 0.005, 0.0025, 0.0125)
 
         trajectory_points = []
 
@@ -281,6 +280,8 @@ class ScorbotActionClient(Node):
         if not goal_handle.accepted:
             self.get_logger().info('Goal rejected :(')
             return
+        
+        self._goal_handle = goal_handle
 
         self.get_logger().info('Goal accepted :)')
 
@@ -296,15 +297,30 @@ class ScorbotActionClient(Node):
         feedback = feedback_msg.feedback
         self.get_logger().info(
             'Received feedback: {0}'.format(feedback.actual.positions))
+        
+    def cancel_goal(self):
+        self.get_logger().info('Canceling goal')
+        future = self._goal_handle.cancel_goal_async()
+        future.add_done_callback(self.cancel_done)
 
+    def cancel_done(self, future):
+        cancel_response = future.result()
+        if len(cancel_response.goals_canceling) > 0:
+            self.get_logger().info('Goal successfully canceled')
+        else:
+            self.get_logger().info('Goal failed to cancel')
+
+        rclpy.shutdown()
 
 def main(args=None):
     rclpy.init(args=args)
 
     action_client = ScorbotActionClient()
     action_client.startTrajectory()
-    rclpy.spin(action_client)
-
-
+    try:
+        rclpy.spin(action_client)
+    except KeyboardInterrupt:
+        action_client.cancel_goal()
+    
 if __name__ == '__main__':
     main()
