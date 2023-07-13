@@ -37,7 +37,6 @@ class MarkerPublisher(Node):
     def publish_marker(self):
         try:
             trans = self._tf_buffer.lookup_transform(self.second_name_, self.first_name_, rclpy.time.Time())
-            # self.get_logger().info("Transforming from {} to {}".format(trans.transform.translation.x, trans.transform.translation.y))
             point = Point()
             point.x = trans.transform.translation.x
             point.y = trans.transform.translation.y
