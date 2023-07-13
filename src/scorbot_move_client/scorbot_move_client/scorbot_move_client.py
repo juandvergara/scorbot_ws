@@ -18,12 +18,12 @@ wrist_roll2hotend = np.array([[cos(radians(-90)),  0, sin(radians(-90)), -0.049]
 
 hotend2wrist_roll = np.linalg.inv(wrist_roll2hotend)
 
-base2station = np.array([[1,  0, 0, 0.3],
-                         [0,  1, 0, 0.3],
-                         [0,  0, 1, 0.25],
+base2station = np.array([[1,  0, 0, 0.35],
+                         [0,  1, 0, 0.35],
+                         [0,  0, 1, 0.22],
                          [0,  0, 0, 1]])
 
-gcode_filename = '/home/juanmadrid/Escritorio/Chair.gcode'
+gcode_filename = '/home/juanmadrid/Escritorio/box-5-5-032.gcode'
 
 def post_process_coordenates(data, resolution, lower_limit, upper_limit):
     columns = [[] for _ in range(len(data[0]))]
@@ -240,7 +240,7 @@ class ScorbotActionClient(Node):
         # print(points_xyz_rpy)
 
         post_process_xyz_rpy = post_process_coordenates(
-            points_xyz_rpy, 0.005, 0.0025, 0.0125)
+            points_xyz_rpy, 0.001, 0.0005, 0.003)
 
         trajectory_points = []
 
